@@ -38,6 +38,7 @@ exports.uploadProfilePhoto = async (req, res) => {
             user: updatedUser
         });
     } catch (error) {
+        console.error('Profile photo upload error:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -58,6 +59,7 @@ exports.uploadRoomPhotos = async (req, res) => {
             uploads
         });
     } catch (error) {
+        console.error('Room photo upload error:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };

@@ -24,11 +24,13 @@ const PostRoom = ({ onPosted }) => {
   const [submitting, setSubmitting] = useState(false);
   const [postError, setPostError] = useState('');
   const [postSuccess, setPostSuccess] = useState('');
+  const [postWarning, setPostWarning] = useState('');
 
   const handleSubmit = async (e) => {
   e.preventDefault();
   setPostError('');
   setPostSuccess('');
+  setPostWarning('');
   setSubmitting(true);
   try {
     const user = auth.currentUser;
@@ -48,11 +50,22 @@ const PostRoom = ({ onPosted }) => {
       setUploadingImages(true);
       const imageData = new FormData();
       roomPhotos.forEach((photo) => imageData.append('images', photo));
-      const uploadRes = await axios.post(`${API_BASE_URL}/api/uploads/rooms`, imageData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 45000
-      });
-      uploadedImages = uploadRes.data.images || [];
+      try {
+        const uploadRes = await axios.post(`${API_BASE_URL}/api/uploads/rooms`, imageData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 45000
+        });
+        uploadedImages = uploadRes.data.images || [];
+      } catch (uploadError) {
+        console.error("Room photo upload failed:", uploadError);
+        const uploadMessage = uploadError.response?.data?.message ||
+          (uploadError.code === 'ECONNABORTED' ? 'Photo upload timed out.' : uploadError.message) ||
+          'Room photos could not be uploaded.';
+        setPostWarning(`${uploadMessage} The room will still be posted without photos.`);
+        uploadedImages = [];
+      } finally {
+        setUploadingImages(false);
+      }
     }
 
     // Prepare the payload
@@ -85,7 +98,9 @@ const PostRoom = ({ onPosted }) => {
     const res = await axios.post(`${API_BASE_URL}/api/rooms`, payload, { timeout: 20000 });
     
     if (res.data.success) {
-      setPostSuccess('Room listed successfully. Opening Browse Rooms...');
+      setPostSuccess(uploadedImages.length > 0
+        ? 'Room listed successfully. Opening Browse Rooms...'
+        : 'Room listed successfully without photos. Opening Browse Rooms...');
       setFormData({
         title: '',
         rent: '',
@@ -106,7 +121,7 @@ const PostRoom = ({ onPosted }) => {
     }
   } catch (error) {
     console.error("Error posting room:", error);
-    setPostError(error.response?.data?.message || (error.code === 'ECONNABORTED' ? 'Posting took too long. Try smaller photos or post without photos first.' : error.message) || 'Failed to post room. Please try again.');
+    setPostError(error.response?.data?.message || (error.code === 'ECONNABORTED' ? 'Posting took too long. Try again without photos first.' : error.message) || 'Failed to post room. Please try again.');
   } finally {
     setUploadingImages(false);
     setSubmitting(false);
@@ -145,6 +160,11 @@ const PostRoom = ({ onPosted }) => {
         {postError && (
           <div className="mb-6 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-600">
             {postError}
+          </div>
+        )}
+        {postWarning && (
+          <div className="mb-6 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-700">
+            {postWarning}
           </div>
         )}
         {postSuccess && (

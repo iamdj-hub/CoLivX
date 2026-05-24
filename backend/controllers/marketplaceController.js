@@ -93,6 +93,7 @@ exports.postRoom = async (req, res) => {
         await newRoom.save();
         res.status(201).json({ success: true, room: newRoom });
     } catch (error) {
+        console.error('Room post error:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
