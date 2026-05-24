@@ -8,6 +8,7 @@ const RoomDetails = ({
   const roomImage = room.images?.[0] || room.image || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
   const posterName = room.posterName || 'CoLivX User';
   const posterId = room.poster?.id || room.userId;
+  const posterProfileImage = room.poster?.profileImage;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-fade-in pb-10">
@@ -107,9 +108,17 @@ const RoomDetails = ({
               </div>
             )}
 
-            <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-4xl font-extrabold shadow-md mb-4 mt-2">
-              {posterName.charAt(0)}
-            </div>
+            {posterProfileImage ? (
+              <img
+                src={posterProfileImage}
+                alt={`${posterName} profile`}
+                className="mb-4 mt-2 h-24 w-24 rounded-full object-cover shadow-md ring-4 ring-white"
+              />
+            ) : (
+              <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-4xl font-extrabold shadow-md mb-4 mt-2">
+                {posterName.charAt(0)}
+              </div>
+            )}
             
             <h3 className="text-xl font-bold text-gray-900">{posterName}</h3>
             <p className="text-gray-500 font-medium text-sm mt-1">{room.poster?.role || 'Lister'}</p>

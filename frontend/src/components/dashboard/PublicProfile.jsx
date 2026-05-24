@@ -15,6 +15,20 @@ const getNameFromProfile = (profile) => (
   'CoLivX User'
 );
 
+const getProfileImage = (profile, identity, fallbackUser) => (
+  identity?.profileImage ||
+  profile?.profileImage ||
+  fallbackUser?.profileImage ||
+  fallbackUser?.userId?.profileImage ||
+  ''
+);
+
+const getRoomImage = (room) => (
+  room?.images?.[0] ||
+  room?.image ||
+  ''
+);
+
 const PublicProfile = ({ 
   user, 
   isShortlisted, 
@@ -31,6 +45,7 @@ const PublicProfile = ({
   const profile = profileData?._id === profileUid ? profileData : user;
   const identity = typeof profile?.userId === 'object' && profile.userId !== null ? profile.userId : profile || {};
   const name = getNameFromProfile(identity) || getNameFromProfile(profile);
+  const profileImage = getProfileImage(profile, identity, user);
   const match = profile?.matchPercentage || user?.matchPercentage || profile?.match || user?.match;
   const role = profile?.occupation || profile?.role || 'Student';
   const cleanLabel = profile?.cleanliness ? `${profile.cleanliness}/10` : (profile?.clean || 'Not set');
@@ -134,9 +149,17 @@ const PublicProfile = ({
         
         <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-center sm:text-left">
           {/* Avatar */}
-          <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-4xl font-extrabold text-white shadow-md sm:h-28 sm:w-28 sm:text-5xl">
-            {name.charAt(0).toUpperCase()}
-          </div>
+          {profileImage ? (
+            <img
+              src={profileImage}
+              alt={`${name} profile`}
+              className="h-24 w-24 shrink-0 rounded-full object-cover shadow-md ring-4 ring-white sm:h-28 sm:w-28"
+            />
+          ) : (
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-4xl font-extrabold text-white shadow-md sm:h-28 sm:w-28 sm:text-5xl">
+              {name.charAt(0).toUpperCase()}
+            </div>
+          )}
           
           {/* Identity */}
           <div>
@@ -262,10 +285,19 @@ const PublicProfile = ({
         {postedRooms.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {postedRooms.map((room) => (
-              <div key={room._id} className="border border-gray-200 rounded-xl p-4">
-                <h4 className="font-bold text-gray-900 truncate">{room.title}</h4>
-                <p className="text-blue-600 font-extrabold mt-1">${room.rent}/mo</p>
-                <p className="text-gray-500 text-sm mt-1">{room.location}</p>
+              <div key={room._id} className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+                <div className="flex h-32 w-full items-center justify-center overflow-hidden bg-gray-100 text-sm font-bold text-gray-400">
+                  {getRoomImage(room) ? (
+                    <img src={getRoomImage(room)} alt={room.title || 'Posted room'} className="h-full w-full object-cover" />
+                  ) : (
+                    <span>No room photo</span>
+                  )}
+                </div>
+                <div className="p-4">
+                  <h4 className="font-bold text-gray-900 truncate">{room.title}</h4>
+                  <p className="text-blue-600 font-extrabold mt-1">${room.rent}/mo</p>
+                  <p className="text-gray-500 text-sm mt-1">{room.location}</p>
+                </div>
               </div>
             ))}
           </div>

@@ -7,6 +7,24 @@ const getDisplayName = (user) => (
   'CoLivX User'
 );
 
+const renderMatchAvatar = (user, displayName) => {
+  if (user?.profileImage) {
+    return (
+      <img
+        src={user.profileImage}
+        alt={`${displayName} profile`}
+        className="mb-4 h-20 w-20 rounded-full object-cover shadow-sm ring-4 ring-white"
+      />
+    );
+  }
+
+  return (
+    <div className="w-20 h-20 bg-gradient-to-br from-blue-600 via-cyan-500 to-emerald-500 rounded-full flex items-center justify-center text-white text-3xl font-extrabold shadow-sm mb-4">
+      {displayName.charAt(0)}
+    </div>
+  );
+};
+
 const Matches = ({ uid, onViewProfile }) => { // Assume uid is passed as a prop
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,9 +70,7 @@ const Matches = ({ uid, onViewProfile }) => { // Assume uid is passed as a prop
             return (
             <div key={matchUser.userId?._id || matchUser._id} className="clx-panel p-6 hover:shadow-md transition flex flex-col items-center text-center">
               
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-600 via-cyan-500 to-emerald-500 rounded-full flex items-center justify-center text-white text-3xl font-extrabold shadow-sm mb-4">
-                {displayName.charAt(0)}
-              </div>
+              {renderMatchAvatar(matchUser.userId, displayName)}
               
               <h3 className="text-xl font-bold text-gray-900">{displayName}</h3>
               <p className="text-gray-500 font-medium text-sm mt-1">{matchUser.userId?.age || 'Age not set'} yrs</p>

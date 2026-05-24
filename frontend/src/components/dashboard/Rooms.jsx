@@ -210,6 +210,25 @@ const Rooms = ({ onViewRoom }) => {
     'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
   );
 
+  const renderPosterAvatar = (room) => {
+    const posterName = room.posterName || 'CoLivX User';
+    if (room.poster?.profileImage) {
+      return (
+        <img
+          src={room.poster.profileImage}
+          alt={`${posterName} profile`}
+          className="h-8 w-8 rounded-full object-cover"
+        />
+      );
+    }
+
+    return (
+      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-xs font-bold text-white">
+        {posterName.charAt(0)}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6 animate-fade-in pb-10">
       <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -299,9 +318,7 @@ const Rooms = ({ onViewRoom }) => {
               
               <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                    {(room.posterName || 'U').charAt(0)}
-                  </div>
+                  {renderPosterAvatar(room)}
                   <span className="text-sm font-bold text-gray-700">Listed by {room.posterName || 'CoLivX User'}</span>
                 </div>
                 {/* Match Badge Preview */}
