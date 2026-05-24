@@ -3,6 +3,63 @@ import axios from 'axios';
 import { auth } from '../../firebase';
 import { API_BASE_URL } from '../../api';
 
+const MAX_ROOM_PHOTO_SIZE = 4.5 * 1024 * 1024;
+const MAX_ROOM_PHOTO_DIMENSION = 1600;
+
+const loadImage = (file) => new Promise((resolve, reject) => {
+  const image = new Image();
+  const objectUrl = URL.createObjectURL(file);
+
+  image.onload = () => {
+    URL.revokeObjectURL(objectUrl);
+    resolve(image);
+  };
+  image.onerror = () => {
+    URL.revokeObjectURL(objectUrl);
+    reject(new Error(`Could not read ${file.name}.`));
+  };
+  image.src = objectUrl;
+});
+
+const canvasToBlob = (canvas, quality) => new Promise((resolve, reject) => {
+  canvas.toBlob((blob) => {
+    if (!blob) {
+      reject(new Error('Could not compress image.'));
+      return;
+    }
+    resolve(blob);
+  }, 'image/jpeg', quality);
+});
+
+const compressRoomPhoto = async (file) => {
+  if (!file.type.startsWith('image/')) {
+    throw new Error(`${file.name} is not an image file.`);
+  }
+
+  if (file.size <= MAX_ROOM_PHOTO_SIZE) return file;
+
+  const image = await loadImage(file);
+  const scale = Math.min(
+    1,
+    MAX_ROOM_PHOTO_DIMENSION / Math.max(image.width, image.height)
+  );
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(image.width * scale));
+  canvas.height = Math.max(1, Math.round(image.height * scale));
+
+  const context = canvas.getContext('2d');
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+  let compressedBlob = null;
+  for (const quality of [0.82, 0.72, 0.62, 0.52, 0.42]) {
+    compressedBlob = await canvasToBlob(canvas, quality);
+    if (compressedBlob.size <= MAX_ROOM_PHOTO_SIZE) break;
+  }
+
+  const compressedName = file.name.replace(/\.[^.]+$/, '') || 'room-photo';
+  return new File([compressedBlob], `${compressedName}.jpg`, { type: 'image/jpeg' });
+};
+
 const PostRoom = ({ onPosted }) => {
   const [formData, setFormData] = useState({
     title: '',
@@ -25,6 +82,7 @@ const PostRoom = ({ onPosted }) => {
   const [postError, setPostError] = useState('');
   const [postSuccess, setPostSuccess] = useState('');
   const [postWarning, setPostWarning] = useState('');
+  const [compressingImages, setCompressingImages] = useState(false);
 
   const handleSubmit = async (e) => {
   e.preventDefault();
@@ -146,10 +204,38 @@ const PostRoom = ({ onPosted }) => {
     );
   };
 
-  const handleRoomPhotosChange = (e) => {
+  const handleRoomPhotosChange = async (e) => {
     const selectedFiles = Array.from(e.target.files || []).slice(0, 6);
-    setRoomPhotos(selectedFiles);
-    setPhotoPreviews(selectedFiles.map((file) => URL.createObjectURL(file)));
+    setPostError('');
+    setPostWarning('');
+
+    if (selectedFiles.length === 0) {
+      setRoomPhotos([]);
+      setPhotoPreviews([]);
+      return;
+    }
+
+    try {
+      setCompressingImages(true);
+      const compressedFiles = await Promise.all(selectedFiles.map(compressRoomPhoto));
+      setRoomPhotos(compressedFiles);
+      setPhotoPreviews((previousPreviews) => {
+        previousPreviews.forEach((preview) => URL.revokeObjectURL(preview));
+        return compressedFiles.map((file) => URL.createObjectURL(file));
+      });
+
+      const compressedCount = compressedFiles.filter((file, index) => file.size < selectedFiles[index].size).length;
+      if (compressedCount > 0) {
+        setPostWarning(`${compressedCount} photo${compressedCount > 1 ? 's were' : ' was'} automatically compressed for upload.`);
+      }
+    } catch (error) {
+      setPostError(error.message || 'Could not prepare photos for upload.');
+      setRoomPhotos([]);
+      setPhotoPreviews([]);
+    } finally {
+      setCompressingImages(false);
+      e.target.value = '';
+    }
   };
 
   return (
@@ -350,6 +436,9 @@ const PostRoom = ({ onPosted }) => {
               className="w-full rounded-xl border border-cyan-100 bg-white p-3 font-medium text-gray-700"
             />
             <p className="mt-2 text-sm text-gray-500">Upload up to 6 photos. They will be stored in Cloudinary.</p>
+            {compressingImages && (
+              <p className="mt-2 text-sm font-bold text-cyan-700">Compressing photos for faster upload...</p>
+            )}
             {photoPreviews.length > 0 && (
               <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
                 {photoPreviews.map((preview, index) => (
@@ -359,8 +448,8 @@ const PostRoom = ({ onPosted }) => {
             )}
           </div>
 
-          <button type="submit" disabled={submitting} className="clx-button-primary w-full py-4 text-lg disabled:opacity-60">
-            {uploadingImages ? 'Uploading Photos...' : submitting ? 'Posting Listing...' : 'Post Listing'}
+          <button type="submit" disabled={submitting || compressingImages} className="clx-button-primary w-full py-4 text-lg disabled:opacity-60">
+            {compressingImages ? 'Preparing Photos...' : uploadingImages ? 'Uploading Photos...' : submitting ? 'Posting Listing...' : 'Post Listing'}
           </button>
         </form>
       </div>
