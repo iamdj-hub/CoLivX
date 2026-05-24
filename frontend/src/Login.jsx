@@ -1,20 +1,67 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { auth } from './firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from './api';
 
+const hasCompletedPreferences = (profileData) => (
+  Boolean(profileData?.preferenceId) ||
+  profileData?.cleanliness !== undefined ||
+  profileData?.city !== undefined
+);
+
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [checkingSession, setCheckingSession] = useState(false);
   const navigate = useNavigate();
+
+  const routeAfterBackendCheck = useCallback(async (user) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/users/profile/${user.uid}`);
+      
+      if (response.data && response.data.success) {
+        if (hasCompletedPreferences(response.data.profileData)) {
+          navigate('/dashboard', { replace: true });
+        } else {
+          navigate('/profile-setup', { replace: true });
+        }
+      }
+    } catch (dbError) {
+      if (dbError.response && dbError.response.status === 404) {
+        navigate('/profile-setup', { replace: true });
+      } else {
+        console.error("Database connection error:", dbError);
+        await auth.signOut();
+        setError(`Could not connect to the deployed backend. Check Vercel VITE_API_BASE_URL and Render CORS settings. Current API: ${API_BASE_URL}`);
+      }
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    const existingUser = auth.currentUser;
+    if (!existingUser) return;
+
+    let cancelled = false;
+    const checkExistingSession = async () => {
+      setCheckingSession(true);
+      await routeAfterBackendCheck(existingUser);
+      if (!cancelled) setCheckingSession(false);
+    };
+
+    checkExistingSession();
+    return () => {
+      cancelled = true;
+    };
+  }, [routeAfterBackendCheck]);
 
   const handleAuth = async (e) => {
     e.preventDefault();
     setError('');
+    setCheckingSession(true);
 
     try {
       if (isSignUp) {
@@ -29,33 +76,24 @@ const Login = () => {
         const user = userCredential.user;
 
         // 3. Ask the database: "Does this user already exist in MongoDB?"
-        try {
-          const response = await axios.get(`${API_BASE_URL}/api/users/profile/${user.uid}`);
-          
-          // 4. SMART CHECK: Do they exist AND do they have preference data?
-          if (response.data && response.data.success) {
-            if (response.data.profileData && response.data.profileData.cleanliness) {
-              navigate('/dashboard', { replace: true }); // Fully onboarded
-            } else {
-              navigate('/profile-setup', { replace: true }); // Partial profile, send back to setup
-            }
-          }
-        
-        } catch (dbError) {
-          // 5. If MongoDB throws a 404 (Not Found), they haven't finished onboarding.
-          if (dbError.response && dbError.response.status === 404) {
-            navigate('/profile-setup', { replace: true });
-          } else {
-            console.error("Database connection error:", dbError);
-            await auth.signOut();
-            setError(`Could not connect to the deployed backend. Check Vercel VITE_API_BASE_URL and Render CORS settings. Current API: ${API_BASE_URL}`);
-          }
-        }
+        await routeAfterBackendCheck(user);
       }
     } catch (err) {
       setError(err.message);
+    } finally {
+      setCheckingSession(false);
     }
   };
+
+  if (checkingSession) {
+    return (
+      <div className="clx-app-bg flex min-h-screen items-center justify-center px-4">
+        <div className="clx-card px-8 py-6 text-center font-bold text-slate-600">
+          Checking your saved profile...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="clx-app-bg flex min-h-screen items-center justify-center px-4">

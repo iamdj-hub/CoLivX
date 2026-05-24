@@ -70,9 +70,7 @@ function App() {
           </PublicOnlyRoute>
         } />
         <Route path="/login" element={
-          <PublicOnlyRoute user={authState.user} loading={authState.loading}>
-            <Login />
-          </PublicOnlyRoute>
+          authState.loading ? <AuthLoading /> : <Login />
         } />
         <Route path="/onboarding" element={
           <ProtectedRoute user={authState.user} loading={authState.loading}>
@@ -89,7 +87,11 @@ function App() {
             <Dashboard />
           </ProtectedRoute>
         } />
-        <Route path="*" element={<Navigate to={authState.user ? "/dashboard" : "/login"} replace />} />
+        <Route path="*" element={
+          authState.loading
+            ? <AuthLoading />
+            : <Navigate to={authState.user ? "/dashboard" : "/login"} replace />
+        } />
       </Routes>
     </Router>
   );
