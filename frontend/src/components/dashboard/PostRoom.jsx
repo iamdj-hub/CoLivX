@@ -16,12 +16,25 @@ const PostRoom = () => {
   const [roomPhotos, setRoomPhotos] = useState([]);
   const [photoPreviews, setPhotoPreviews] = useState([]);
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [postError, setPostError] = useState('');
+  const [postSuccess, setPostSuccess] = useState('');
 
   const handleSubmit = async (e) => {
   e.preventDefault();
+  setPostError('');
+  setPostSuccess('');
   try {
     const user = auth.currentUser;
-    if (!user) return alert("Please login to post a room.");
+    if (!user) {
+      setPostError('Please log in again before posting a room.');
+      return;
+    }
+
+    const rent = Number(formData.rent);
+    if (!Number.isFinite(rent) || rent <= 0) {
+      setPostError('Monthly rent must be greater than 0.');
+      return;
+    }
 
     let uploadedImages = [];
     if (roomPhotos.length > 0) {
@@ -37,13 +50,19 @@ const PostRoom = () => {
     // Prepare the payload
     const payload = {
       uid: user.uid,
+      userId: user.uid,
       title: formData.title,
-      rent: Number(formData.rent),
+      rent,
       location: formData.location,
       latitude: formData.latitude,
       longitude: formData.longitude,
       description: formData.description,
       amenities: formData.amenities.split(',').map(a => a.trim()).filter(Boolean),
+      rules: {
+        smoking: false,
+        pets: false,
+        dietary: 'any'
+      },
       images: uploadedImages
     };
 
@@ -51,7 +70,7 @@ const PostRoom = () => {
     const res = await axios.post(`${API_BASE_URL}/api/rooms`, payload);
     
     if (res.data.success) {
-      alert("Room listed successfully!");
+      setPostSuccess('Room listed successfully. It is now visible in Browse Rooms.');
       setFormData({
         title: '',
         rent: '',
@@ -66,7 +85,7 @@ const PostRoom = () => {
     }
   } catch (error) {
     console.error("Error posting room:", error);
-    alert(error.response?.data?.message || "Failed to post room. Check the console.");
+    setPostError(error.response?.data?.message || error.message || 'Failed to post room. Please try again.');
   } finally {
     setUploadingImages(false);
   }
@@ -101,6 +120,16 @@ const PostRoom = () => {
       <div className="clx-panel p-8">
         <h2 className="clx-gradient-text text-3xl font-black mb-2">🏠 Post a Room</h2>
         <p className="text-gray-500 font-medium mb-8">Got a spare room? Find the perfect roommate by listing it here.</p>
+        {postError && (
+          <div className="mb-6 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-600">
+            {postError}
+          </div>
+        )}
+        {postSuccess && (
+          <div className="mb-6 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
+            {postSuccess}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           

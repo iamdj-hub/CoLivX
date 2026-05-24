@@ -38,10 +38,46 @@ const haversineKm = ([lngA, latA], [lngB, latB]) => {
 
 exports.postRoom = async (req, res) => {
     try {
+        const userId = req.body.userId || req.body.uid;
+        const title = String(req.body.title || '').trim();
+        const location = String(req.body.location || '').trim();
+        const rent = toNumber(req.body.rent);
+
+        if (!userId) {
+            return res.status(400).json({ success: false, message: 'You must be logged in to post a room.' });
+        }
+
+        if (!title) {
+            return res.status(400).json({ success: false, message: 'Room title is required.' });
+        }
+
+        if (!location) {
+            return res.status(400).json({ success: false, message: 'Room location is required.' });
+        }
+
+        if (rent === null || rent <= 0) {
+            return res.status(400).json({ success: false, message: 'Monthly rent must be greater than 0.' });
+        }
+
         const locationCoords = buildGeoPoint(req.body);
+        const amenities = Array.isArray(req.body.amenities)
+            ? req.body.amenities
+            : String(req.body.amenities || '').split(',');
+        const images = Array.isArray(req.body.images) ? req.body.images.filter(Boolean) : [];
+
         const newRoom = new Room({
-            ...req.body,
-            userId: req.body.uid,
+            userId,
+            title,
+            rent,
+            location,
+            description: req.body.description || '',
+            amenities: amenities.map((amenity) => String(amenity).trim()).filter(Boolean),
+            rules: {
+                smoking: Boolean(req.body.rules?.smoking),
+                pets: Boolean(req.body.rules?.pets),
+                dietary: req.body.rules?.dietary || 'any'
+            },
+            images,
             ...(locationCoords ? { locationCoords } : {})
         });
         await newRoom.save();
