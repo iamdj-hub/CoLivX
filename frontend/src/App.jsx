@@ -39,6 +39,12 @@ const Home = () => (
             See Features
           </a>
         </div>
+        <p className="mt-6 text-sm font-medium text-slate-500">
+          Need help or want to contact the founder? Email{' '}
+          <a href="mailto:djxeve19@gmail.com" className="font-bold text-slate-600 underline decoration-slate-300 underline-offset-4">
+            djxeve19@gmail.com
+          </a>
+        </p>
       </section>
 
       <section className="clx-card overflow-hidden">

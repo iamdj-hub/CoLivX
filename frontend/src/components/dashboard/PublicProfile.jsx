@@ -295,7 +295,12 @@ const PublicProfile = ({
                 </div>
                 <div className="p-4">
                   <h4 className="font-bold text-gray-900 truncate">{room.title}</h4>
-                  <p className="text-blue-600 font-extrabold mt-1">${room.rent}/mo</p>
+                  <p className="text-blue-600 font-extrabold mt-1">₹{room.rent}/mo</p>
+                  <p className={`mt-1 text-xs font-black ${room.allocation?.status === 'allocated' ? 'text-amber-600' : 'text-emerald-600'}`}>
+                    {room.allocation?.status === 'allocated'
+                      ? `Allocated for ${room.allocation.durationValue || '?'} ${room.allocation.durationUnit || 'months'}`
+                      : 'Available'}
+                  </p>
                   <p className="text-gray-500 text-sm mt-1">{room.location}</p>
                 </div>
               </div>

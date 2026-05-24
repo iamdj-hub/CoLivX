@@ -16,8 +16,8 @@ import { API_BASE_URL } from './api';
 
 const buildEditFormData = (profileData) => ({
   ...profileData,
-  budgetMin: profileData.budget?.min || 500,
-  budgetMax: profileData.budget?.max || 2000,
+  budgetMin: profileData.budget?.min || 5000,
+  budgetMax: profileData.budget?.max || 25000,
   hobbiesInput: profileData.hobbies ? profileData.hobbies.join(', ') : '',
   dealbreakersInput: profileData.dealbreakers ? profileData.dealbreakers.join(', ') : ''
 });
@@ -209,6 +209,20 @@ const handleViewPosterProfile = (posterObj) => {
     setActiveTab('rooms');
   };
 
+  const handleRoomUpdated = (updatedRoom) => {
+    if (!updatedRoom) return;
+    setSelectedRoom((previous) => previous && getRoomId(previous) === getRoomId(updatedRoom) ? {
+      ...previous,
+      ...updatedRoom
+    } : previous);
+    setProfileData((previous) => previous ? {
+      ...previous,
+      postedRooms: (previous.postedRooms || []).map((room) => (
+        getRoomId(room) === getRoomId(updatedRoom) ? { ...room, ...updatedRoom } : room
+      ))
+    } : previous);
+  };
+
   // --- UI RENDERER ---
   const renderContent = () => {
     if (loading) return <div className="flex items-center justify-center h-full text-gray-500 font-bold">Loading Dashboard...</div>;
@@ -254,6 +268,8 @@ const handleViewPosterProfile = (posterObj) => {
          isShortlisted={shortlistedRoomIds.includes(getRoomId(selectedRoom))}
          onToggleLike={() => handleToggleRoomLike(selectedRoom)}
          onToggleShortlist={() => handleToggleRoomShortlist(selectedRoom)}
+         currentUid={currentUid}
+         onRoomUpdated={handleRoomUpdated}
        />
      );
       case 'post': 

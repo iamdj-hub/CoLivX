@@ -42,6 +42,20 @@ const roomSchema = new mongoose.Schema({
         notes: { type: String, default: '' }
     },
     images: [String],
+    allocation: {
+        status: {
+            type: String,
+            enum: ['available', 'allocated'],
+            default: 'available'
+        },
+        durationValue: { type: Number, default: 0 },
+        durationUnit: {
+            type: String,
+            enum: ['months', 'years'],
+            default: 'months'
+        },
+        allocatedAt: { type: Date }
+    },
     createdAt: { type: Date, default: Date.now }
 });
 

@@ -15,8 +15,8 @@ const Onboarding = () => {
     city: '',
     gender: 'prefer not to say',
     occupation: 'student',
-    budgetMin: 500,
-    budgetMax: 2000,
+    budgetMin: 5000,
+    budgetMax: 25000,
     cleanliness: 5,
     sleepSchedule: 22, 
     dietary: 'veg',
@@ -170,11 +170,11 @@ const Onboarding = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Monthly Budget (Min - Max)</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Monthly Budget in INR (Min - Max)</label>
                   <div className="flex items-center space-x-3">
-                    <input type="number" name="budgetMin" value={formData.budgetMin} onChange={handleChange} className="w-1/2 rounded-xl border-gray-300 border p-3.5 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Min" />
+                    <input type="number" name="budgetMin" value={formData.budgetMin} onChange={handleChange} className="w-1/2 rounded-xl border-gray-300 border p-3.5 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Min ₹" />
                     <span className="text-gray-400 font-bold">-</span>
-                    <input type="number" name="budgetMax" value={formData.budgetMax} onChange={handleChange} className="w-1/2 rounded-xl border-gray-300 border p-3.5 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Max" />
+                    <input type="number" name="budgetMax" value={formData.budgetMax} onChange={handleChange} className="w-1/2 rounded-xl border-gray-300 border p-3.5 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Max ₹" />
                   </div>
                 </div>
               </div>

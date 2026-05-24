@@ -75,7 +75,7 @@ const RadiusMap = ({ rooms, center }) => {
               <g key={room._id || room.id} opacity={inside ? 1 : 0.45}>
                 <circle cx={x} cy={y} r="2.6" fill={inside ? '#2563eb' : '#94a3b8'} stroke="white" strokeWidth="0.8" />
                 <text x={x} y={y - 4} textAnchor="middle" fontSize="2.6" fill="#0f172a" fontWeight="800">
-                  ${room.rent}
+                  ₹{room.rent}
                 </text>
               </g>
             ))}
@@ -119,7 +119,7 @@ const preferenceText = (room) => {
   if (prefs.gender && prefs.gender !== 'any') items.push(`${prefs.gender} preferred`);
   if (prefs.occupation && prefs.occupation !== 'any') items.push(prefs.occupation);
   if (prefs.budgetMin || prefs.budgetMax) {
-    items.push(`budget $${prefs.budgetMin || 0}-${prefs.budgetMax || room.rent}`);
+    items.push(`budget ₹${prefs.budgetMin || 0}-₹${prefs.budgetMax || room.rent}`);
   }
 
   return items.length ? items.join(' • ') : 'Open to suitable renters';
@@ -333,7 +333,7 @@ const Rooms = ({
             <div className="h-48 overflow-hidden relative">
               <img src={getRoomImage(room)} alt={room.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
               <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg font-extrabold text-gray-900 shadow-sm">
-                ${room.rent}<span className="text-sm text-gray-500 font-medium">/mo</span>
+                ₹{room.rent}<span className="text-sm text-gray-500 font-medium">/mo</span>
               </div>
             </div>
 
@@ -347,6 +347,11 @@ const Rooms = ({
                 </div>
               )}
               <h3 className="text-xl font-bold text-gray-900 mb-4 line-clamp-1">{room.title}</h3>
+              {room.allocation?.status === 'allocated' && (
+                <div className="mb-3 inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-700">
+                  Allocated for {room.allocation.durationValue || '?'} {room.allocation.durationUnit || 'months'}
+                </div>
+              )}
               <div className="mb-4 rounded-xl bg-cyan-50 px-3 py-2 text-xs font-bold text-cyan-800">
                 Renter preferences: {preferenceText(room)}
               </div>

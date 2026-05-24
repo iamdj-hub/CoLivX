@@ -36,64 +36,119 @@ const haversineKm = ([lngA, latA], [lngB, latB]) => {
     return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
+const normalizeRoomPayload = (body) => {
+    const title = String(body.title || '').trim();
+    const location = String(body.location || '').trim();
+    const rent = toNumber(body.rent);
+    const locationCoords = buildGeoPoint(body);
+    const amenities = Array.isArray(body.amenities)
+        ? body.amenities
+        : String(body.amenities || '').split(',');
+    const images = Array.isArray(body.images) ? body.images.filter(Boolean) : undefined;
+    const renterPreferences = body.renterPreferences || {};
+    const allocation = body.allocation || {};
+
+    return {
+        title,
+        rent,
+        location,
+        description: body.description || '',
+        amenities: amenities.map((amenity) => String(amenity).trim()).filter(Boolean),
+        rules: {
+            smoking: Boolean(body.rules?.smoking),
+            pets: Boolean(body.rules?.pets),
+            dietary: body.rules?.dietary || 'any'
+        },
+        renterPreferences: {
+            gender: renterPreferences.gender || 'any',
+            occupation: renterPreferences.occupation || 'any',
+            budgetMin: toNumber(renterPreferences.budgetMin) || 0,
+            budgetMax: toNumber(renterPreferences.budgetMax) || 0,
+            notes: renterPreferences.notes || ''
+        },
+        allocation: {
+            status: allocation.status === 'allocated' ? 'allocated' : 'available',
+            durationValue: toNumber(allocation.durationValue) || 0,
+            durationUnit: allocation.durationUnit === 'years' ? 'years' : 'months',
+            allocatedAt: allocation.status === 'allocated' ? (allocation.allocatedAt || new Date()) : undefined
+        },
+        ...(images ? { images } : {}),
+        ...(locationCoords ? { locationCoords } : {})
+    };
+};
+
 exports.postRoom = async (req, res) => {
     try {
         const userId = req.body.userId || req.body.uid;
-        const title = String(req.body.title || '').trim();
-        const location = String(req.body.location || '').trim();
-        const rent = toNumber(req.body.rent);
+        const payload = normalizeRoomPayload(req.body);
 
         if (!userId) {
             return res.status(400).json({ success: false, message: 'You must be logged in to post a room.' });
         }
 
-        if (!title) {
+        if (!payload.title) {
             return res.status(400).json({ success: false, message: 'Room title is required.' });
         }
 
-        if (!location) {
+        if (!payload.location) {
             return res.status(400).json({ success: false, message: 'Room location is required.' });
         }
 
-        if (rent === null || rent <= 0) {
+        if (payload.rent === null || payload.rent <= 0) {
             return res.status(400).json({ success: false, message: 'Monthly rent must be greater than 0.' });
         }
 
-        const locationCoords = buildGeoPoint(req.body);
-        const amenities = Array.isArray(req.body.amenities)
-            ? req.body.amenities
-            : String(req.body.amenities || '').split(',');
-        const images = Array.isArray(req.body.images) ? req.body.images.filter(Boolean) : [];
-        const renterPreferences = req.body.renterPreferences || {};
-        const budgetMin = toNumber(renterPreferences.budgetMin) || 0;
-        const budgetMax = toNumber(renterPreferences.budgetMax) || 0;
-
         const newRoom = new Room({
             userId,
-            title,
-            rent,
-            location,
-            description: req.body.description || '',
-            amenities: amenities.map((amenity) => String(amenity).trim()).filter(Boolean),
-            rules: {
-                smoking: Boolean(req.body.rules?.smoking),
-                pets: Boolean(req.body.rules?.pets),
-                dietary: req.body.rules?.dietary || 'any'
-            },
-            renterPreferences: {
-                gender: renterPreferences.gender || 'any',
-                occupation: renterPreferences.occupation || 'any',
-                budgetMin,
-                budgetMax,
-                notes: renterPreferences.notes || ''
-            },
-            images,
-            ...(locationCoords ? { locationCoords } : {})
+            ...payload
         });
         await newRoom.save();
         res.status(201).json({ success: true, room: newRoom });
     } catch (error) {
         console.error('Room post error:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.updateRoom = async (req, res) => {
+    try {
+        const { roomId } = req.params;
+        const uid = req.body.uid || req.body.userId;
+
+        if (!uid) {
+            return res.status(400).json({ success: false, message: 'You must be logged in to edit a room.' });
+        }
+
+        const room = await Room.findById(roomId);
+        if (!room) {
+            return res.status(404).json({ success: false, message: 'Room not found.' });
+        }
+
+        if (room.userId !== uid) {
+            return res.status(403).json({ success: false, message: 'Only the room lister can edit this post.' });
+        }
+
+        const payload = normalizeRoomPayload(req.body);
+        if (!payload.title) {
+            return res.status(400).json({ success: false, message: 'Room title is required.' });
+        }
+        if (!payload.location) {
+            return res.status(400).json({ success: false, message: 'Room location is required.' });
+        }
+        if (payload.rent === null || payload.rent <= 0) {
+            return res.status(400).json({ success: false, message: 'Monthly rent must be greater than 0.' });
+        }
+
+        Object.assign(room, payload);
+        if (payload.allocation.status === 'available') {
+            room.allocation.allocatedAt = undefined;
+            room.allocation.durationValue = 0;
+        }
+
+        await room.save();
+        res.status(200).json({ success: true, room });
+    } catch (error) {
+        console.error('Room update error:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };

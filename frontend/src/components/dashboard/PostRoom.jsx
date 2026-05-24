@@ -276,10 +276,10 @@ const PostRoom = ({ onPosted }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Monthly Rent ($)</label>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Monthly Rent (₹)</label>
               <input 
                 type="number" 
-                placeholder="800" 
+                placeholder="12000" 
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                 value={formData.rent}
                 onChange={(e) => setFormData({...formData, rent: e.target.value})}
@@ -391,10 +391,10 @@ const PostRoom = ({ onPosted }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">Preferred Budget Min ($)</label>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Preferred Budget Min (₹)</label>
                 <input
                   type="number"
-                  placeholder="500"
+                  placeholder="8000"
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
                   value={formData.preferredBudgetMin}
                   onChange={(e) => setFormData({...formData, preferredBudgetMin: e.target.value})}
@@ -402,10 +402,10 @@ const PostRoom = ({ onPosted }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">Preferred Budget Max ($)</label>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Preferred Budget Max (₹)</label>
                 <input
                   type="number"
-                  placeholder="1200"
+                  placeholder="25000"
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
                   value={formData.preferredBudgetMax}
                   onChange={(e) => setFormData({...formData, preferredBudgetMax: e.target.value})}

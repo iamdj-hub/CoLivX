@@ -65,6 +65,7 @@ app.use(express.json()); // Allows the server to read incoming JSON data
 // Marketplace Routes
 app.post('/api/rooms', marketplaceController.postRoom);
 app.get('/api/rooms', marketplaceController.getAllRooms);
+app.put('/api/rooms/:roomId', marketplaceController.updateRoom);
 app.post('/api/reviews', marketplaceController.submitReview);
 
 // ---- ROUTES -----

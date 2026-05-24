@@ -169,6 +169,12 @@ const Login = () => {
               {isSignUp ? 'Log In' : 'Sign Up'}
             </button>
           </p>
+          <p className="mt-5 text-center text-xs font-medium text-slate-400">
+            Questions or support? Contact the founder at{' '}
+            <a href="mailto:djxeve19@gmail.com" className="font-bold text-slate-500 underline decoration-slate-300 underline-offset-4">
+              djxeve19@gmail.com
+            </a>
+          </p>
         </section>
       </div>
     </div>

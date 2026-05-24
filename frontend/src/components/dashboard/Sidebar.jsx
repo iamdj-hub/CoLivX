@@ -46,6 +46,12 @@ const Sidebar = ({
         </div>
 
         <div className="border-t border-gray-100 p-4">
+          <p className="mb-3 text-center text-[11px] font-semibold leading-5 text-slate-400">
+            Contact founder:{' '}
+            <a href="mailto:djxeve19@gmail.com" className="text-slate-500 underline decoration-slate-300 underline-offset-4">
+              djxeve19@gmail.com
+            </a>
+          </p>
           <button
             onClick={handleLogout}
             className="flex w-full items-center justify-center rounded-xl bg-red-50/80 px-4 py-3 font-bold text-red-600 transition-colors hover:bg-red-100"
@@ -60,6 +66,9 @@ const Sidebar = ({
         <div>
           <h1 className="clx-gradient-text text-2xl font-black tracking-tight">CoLivX.</h1>
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Smart Co-Living</p>
+          <a href="mailto:djxeve19@gmail.com" className="text-[10px] font-semibold text-slate-400 underline decoration-slate-300 underline-offset-2">
+            Contact founder
+          </a>
         </div>
         <button
           onClick={handleLogout}
