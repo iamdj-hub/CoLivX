@@ -31,6 +31,7 @@ const Dashboard = () => {
   const [currentUid, setCurrentUid] = useState(null);
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [profileError, setProfileError] = useState('');
 
   // Public Profile & Shortlist States
   const [selectedUser, setSelectedUser] = useState(null);
@@ -76,6 +77,7 @@ const handleViewPosterProfile = (posterObj) => {
       const user = auth.currentUser;
       if (user) {
         setCurrentUid(user.uid);
+        setProfileError('');
         try {
           const res = await axios.get(`${API_BASE_URL}/api/users/profile/${user.uid}`);
           if (res.data.success) {
@@ -87,6 +89,7 @@ const handleViewPosterProfile = (posterObj) => {
             navigate('/profile-setup', { replace: true });
             return;
           }
+          setProfileError(`Could not load your saved profile from the deployed backend. Current API: ${API_BASE_URL}`);
         } finally {
           setLoading(false);
         }
@@ -175,6 +178,22 @@ const handleViewPosterProfile = (posterObj) => {
   // --- UI RENDERER ---
   const renderContent = () => {
     if (loading) return <div className="flex items-center justify-center h-full text-gray-500 font-bold">Loading Dashboard...</div>;
+    if (profileError) {
+      return (
+        <div className="clx-card max-w-2xl p-8">
+          <h2 className="text-2xl font-black text-gray-900 mb-3">Backend connection issue</h2>
+          <p className="text-gray-700 mb-6">{profileError}</p>
+          <div className="flex flex-wrap gap-3">
+            <button className="clx-button-primary" onClick={() => window.location.reload()}>
+              Try Again
+            </button>
+            <button className="clx-button-dark" onClick={handleLogout}>
+              Log Out
+            </button>
+          </div>
+        </div>
+      );
+    }
 
     switch (activeTab) {
       case 'matches': 

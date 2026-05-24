@@ -7,8 +7,14 @@ require('dotenv').config(); // Loads our secret variables from .env
 
 // Initialize the Express app
 const app = express();
+const parseOrigins = (value = '') => value
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
+
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
+  ...parseOrigins(process.env.FRONTEND_URL),
+  ...parseOrigins(process.env.FRONTEND_URLS),
   process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
   'http://localhost:5173',
   'http://127.0.0.1:5173'
@@ -54,7 +60,16 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/health', (req, res) => {
-    res.status(200).json({ success: true, service: 'CoLivX API', status: 'ok' });
+    const dbStates = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+    const database = dbStates[mongoose.connection.readyState] || 'unknown';
+    const isDatabaseConnected = mongoose.connection.readyState === 1;
+
+    res.status(isDatabaseConnected ? 200 : 503).json({
+        success: isDatabaseConnected,
+        service: 'CoLivX API',
+        status: isDatabaseConnected ? 'ok' : 'database_unavailable',
+        database
+    });
 });
 
 // --- DATABASE CONNECTION ---

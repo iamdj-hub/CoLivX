@@ -47,8 +47,8 @@ const Login = () => {
             navigate('/profile-setup', { replace: true });
           } else {
             console.error("Database connection error:", dbError);
-            // Fallback in case the server is just running slow
-            navigate('/profile-setup', { replace: true }); 
+            await auth.signOut();
+            setError(`Could not connect to the deployed backend. Check Vercel VITE_API_BASE_URL and Render CORS settings. Current API: ${API_BASE_URL}`);
           }
         }
       }
