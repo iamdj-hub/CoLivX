@@ -7,6 +7,10 @@ const uploadImageBuffer = (file, folder) => {
     }
 
     return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+            reject(new Error('Image upload timed out. Please try a smaller photo or try again.'));
+        }, 30000);
+
         const uploadStream = cloudinary.uploader.upload_stream(
             {
                 folder,
@@ -16,6 +20,7 @@ const uploadImageBuffer = (file, folder) => {
                 ]
             },
             (error, result) => {
+                clearTimeout(timeout);
                 if (error) return reject(error);
                 resolve({
                     url: result.secure_url,
@@ -26,7 +31,17 @@ const uploadImageBuffer = (file, folder) => {
             }
         );
 
-        Readable.from(file.buffer).pipe(uploadStream);
+        uploadStream.on('error', (error) => {
+            clearTimeout(timeout);
+            reject(error);
+        });
+
+        Readable.from(file.buffer)
+            .on('error', (error) => {
+                clearTimeout(timeout);
+                reject(error);
+            })
+            .pipe(uploadStream);
     });
 };
 

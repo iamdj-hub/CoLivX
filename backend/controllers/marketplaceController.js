@@ -64,6 +64,9 @@ exports.postRoom = async (req, res) => {
             ? req.body.amenities
             : String(req.body.amenities || '').split(',');
         const images = Array.isArray(req.body.images) ? req.body.images.filter(Boolean) : [];
+        const renterPreferences = req.body.renterPreferences || {};
+        const budgetMin = toNumber(renterPreferences.budgetMin) || 0;
+        const budgetMax = toNumber(renterPreferences.budgetMax) || 0;
 
         const newRoom = new Room({
             userId,
@@ -76,6 +79,13 @@ exports.postRoom = async (req, res) => {
                 smoking: Boolean(req.body.rules?.smoking),
                 pets: Boolean(req.body.rules?.pets),
                 dietary: req.body.rules?.dietary || 'any'
+            },
+            renterPreferences: {
+                gender: renterPreferences.gender || 'any',
+                occupation: renterPreferences.occupation || 'any',
+                budgetMin,
+                budgetMax,
+                notes: renterPreferences.notes || ''
             },
             images,
             ...(locationCoords ? { locationCoords } : {})

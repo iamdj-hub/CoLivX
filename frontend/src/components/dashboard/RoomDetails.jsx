@@ -2,13 +2,25 @@ const RoomDetails = ({
   room, 
   onBack, 
   onMessageClick, 
-  onViewPosterProfile 
+  onViewPosterProfile,
+  isLiked,
+  isShortlisted,
+  onToggleLike,
+  onToggleShortlist
 }) => {
   if (!room) return null;
   const roomImage = room.images?.[0] || room.image || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
   const posterName = room.posterName || 'CoLivX User';
   const posterId = room.poster?.id || room.userId;
   const posterProfileImage = room.poster?.profileImage;
+  const renterPreferences = room.renterPreferences || {};
+  const preferenceChips = [
+    renterPreferences.gender && renterPreferences.gender !== 'any' ? `${renterPreferences.gender} preferred` : 'Any gender',
+    renterPreferences.occupation && renterPreferences.occupation !== 'any' ? renterPreferences.occupation : 'Any occupation',
+    renterPreferences.budgetMin || renterPreferences.budgetMax
+      ? `Budget $${renterPreferences.budgetMin || 0}-${renterPreferences.budgetMax || room.rent}`
+      : null
+  ].filter(Boolean);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-fade-in pb-10">
@@ -91,6 +103,20 @@ const RoomDetails = ({
                 🍲 {room.rules?.dietary || 'Any Diet'}
               </span>
             </div>
+
+            <h3 className="mt-8 text-xl font-extrabold text-gray-900 mb-4">Owner Preferences for Renters</h3>
+            <div className="flex flex-wrap gap-3">
+              {preferenceChips.map((chip) => (
+                <span key={chip} className="rounded-xl bg-cyan-50 px-4 py-2 text-sm font-bold uppercase text-cyan-700">
+                  {chip}
+                </span>
+              ))}
+            </div>
+            {renterPreferences.notes && (
+              <p className="mt-4 rounded-2xl border border-cyan-100 bg-cyan-50/60 p-4 text-sm font-semibold text-slate-600">
+                {renterPreferences.notes}
+              </p>
+            )}
           </div>
 
         </div>
@@ -123,7 +149,23 @@ const RoomDetails = ({
             <h3 className="text-xl font-bold text-gray-900">{posterName}</h3>
             <p className="text-gray-500 font-medium text-sm mt-1">{room.poster?.role || 'Lister'}</p>
             
-            <div className="w-full grid grid-cols-2 gap-3 mt-6">
+            <div className="mt-6 grid w-full grid-cols-2 gap-3">
+              <button
+                onClick={onToggleShortlist}
+                className={`w-full rounded-xl py-2.5 font-bold transition ${
+                  isShortlisted ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                }`}
+              >
+                {isShortlisted ? 'Shortlisted' : 'Shortlist'}
+              </button>
+              <button
+                onClick={onToggleLike}
+                className={`w-full rounded-xl py-2.5 font-bold transition ${
+                  isLiked ? 'bg-rose-100 text-rose-700' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                }`}
+              >
+                {isLiked ? 'Liked' : 'Like'}
+              </button>
               <button 
                 onClick={() => onMessageClick({
                   _id: posterId,

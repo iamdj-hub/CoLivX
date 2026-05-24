@@ -112,8 +112,28 @@ const RadiusMap = ({ rooms, center }) => {
   );
 };
 
+const preferenceText = (room) => {
+  const prefs = room.renterPreferences || {};
+  const items = [];
+
+  if (prefs.gender && prefs.gender !== 'any') items.push(`${prefs.gender} preferred`);
+  if (prefs.occupation && prefs.occupation !== 'any') items.push(prefs.occupation);
+  if (prefs.budgetMin || prefs.budgetMax) {
+    items.push(`budget $${prefs.budgetMin || 0}-${prefs.budgetMax || room.rent}`);
+  }
+
+  return items.length ? items.join(' • ') : 'Open to suitable renters';
+};
+
 // 1. Accept the prop
-const Rooms = ({ onViewRoom }) => {
+const Rooms = ({
+  onViewRoom,
+  onMessageClick,
+  likedRoomIds = [],
+  shortlistedRoomIds = [],
+  onToggleLike,
+  onToggleShortlist
+}) => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -291,10 +311,22 @@ const Rooms = ({ onViewRoom }) => {
 
       {!loading && !error && rooms.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {rooms.map((room) => (
+        {rooms.map((room) => {
+          const roomId = room._id || room.id;
+          const liked = likedRoomIds.includes(roomId);
+          const shortlisted = shortlistedRoomIds.includes(roomId);
+          const owner = room.poster ? {
+            _id: room.poster.id,
+            id: room.poster.id,
+            displayName: room.poster.name || room.posterName,
+            name: room.poster.name || room.posterName,
+            email: room.poster.email
+          } : null;
+
+          return (
           
           <div 
-            key={room._id || room.id} 
+            key={roomId} 
             onClick={() => onViewRoom(room)}
             className="clx-panel overflow-hidden hover:shadow-lg transition group cursor-pointer"
           >
@@ -315,6 +347,9 @@ const Rooms = ({ onViewRoom }) => {
                 </div>
               )}
               <h3 className="text-xl font-bold text-gray-900 mb-4 line-clamp-1">{room.title}</h3>
+              <div className="mb-4 rounded-xl bg-cyan-50 px-3 py-2 text-xs font-bold text-cyan-800">
+                Renter preferences: {preferenceText(room)}
+              </div>
               
               <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                 <div className="flex items-center gap-2">
@@ -326,9 +361,47 @@ const Rooms = ({ onViewRoom }) => {
                   <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-md">{room.poster.match}% Match</span>
                 )}
               </div>
+
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleShortlist?.(room);
+                  }}
+                  className={`rounded-xl px-3 py-2 text-xs font-black transition ${
+                    shortlisted ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  }`}
+                >
+                  {shortlisted ? 'Shortlisted' : 'Shortlist'}
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleLike?.(room);
+                  }}
+                  className={`rounded-xl px-3 py-2 text-xs font-black transition ${
+                    liked ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  }`}
+                >
+                  {liked ? 'Liked' : 'Like'}
+                </button>
+                <button
+                  type="button"
+                  disabled={!owner}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (owner) onMessageClick?.(owner);
+                  }}
+                  className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-black text-white transition hover:bg-blue-700 disabled:bg-blue-200"
+                >
+                  Message
+                </button>
+              </div>
             </div>
           </div>
-        ))}
+        )})}
         </div>
       )}
     </div>

@@ -26,6 +26,21 @@ const roomSchema = new mongoose.Schema({
         pets: Boolean,
         dietary: String
     },
+    renterPreferences: {
+        gender: {
+            type: String,
+            enum: ['any', 'male', 'female', 'other'],
+            default: 'any'
+        },
+        occupation: {
+            type: String,
+            enum: ['any', 'student', 'working professional', 'looking for job'],
+            default: 'any'
+        },
+        budgetMin: { type: Number, default: 0 },
+        budgetMax: { type: Number, default: 0 },
+        notes: { type: String, default: '' }
+    },
     images: [String],
     createdAt: { type: Date, default: Date.now }
 });

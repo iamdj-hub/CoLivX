@@ -36,6 +36,8 @@ const Dashboard = () => {
   // Public Profile & Shortlist States
   const [selectedUser, setSelectedUser] = useState(null);
   const [shortlistedUsers, setShortlistedUsers] = useState([]);
+  const [likedRoomIds, setLikedRoomIds] = useState([]);
+  const [shortlistedRoomIds, setShortlistedRoomIds] = useState([]);
   const [messagingRecipient, setMessagingRecipient] = useState(null);
 
   // Edit Profile States
@@ -49,6 +51,28 @@ const Dashboard = () => {
         ? prev.filter(id => id !== userId) // Remove if already shortlisted
         : [...prev, userId]                // Add if not shortlisted
     );
+  };
+
+  const getRoomId = (room) => room?._id || room?.id;
+
+  const handleToggleRoomLike = (room) => {
+    const roomId = getRoomId(room);
+    if (!roomId) return;
+    setLikedRoomIds((previous) => (
+      previous.includes(roomId)
+        ? previous.filter((id) => id !== roomId)
+        : [...previous, roomId]
+    ));
+  };
+
+  const handleToggleRoomShortlist = (room) => {
+    const roomId = getRoomId(room);
+    if (!roomId) return;
+    setShortlistedRoomIds((previous) => (
+      previous.includes(roomId)
+        ? previous.filter((id) => id !== roomId)
+        : [...previous, roomId]
+    ));
   };
 
   const handleViewRoom = (room) => {
@@ -175,6 +199,16 @@ const handleViewPosterProfile = (posterObj) => {
     setIsEditingProfile(editing);
   };
 
+  const handleRoomPosted = (room) => {
+    if (room) {
+      setProfileData((previous) => previous ? {
+        ...previous,
+        postedRooms: [room, ...(previous.postedRooms || [])]
+      } : previous);
+    }
+    setActiveTab('rooms');
+  };
+
   // --- UI RENDERER ---
   const renderContent = () => {
     if (loading) return <div className="flex items-center justify-center h-full text-gray-500 font-bold">Loading Dashboard...</div>;
@@ -199,7 +233,16 @@ const handleViewPosterProfile = (posterObj) => {
       case 'matches': 
         return <Matches uid={currentUid} onViewProfile={handleViewProfile} />;
       case 'rooms': 
-        return <Rooms onViewRoom={handleViewRoom} />; // <--- Pass prop here
+        return (
+          <Rooms
+            onViewRoom={handleViewRoom}
+            onMessageClick={handleMessageClick}
+            likedRoomIds={likedRoomIds}
+            shortlistedRoomIds={shortlistedRoomIds}
+            onToggleLike={handleToggleRoomLike}
+            onToggleShortlist={handleToggleRoomShortlist}
+          />
+        );
    case 'roomDetails':                             // <--- Add this case
      return (
        <RoomDetails 
@@ -207,10 +250,14 @@ const handleViewPosterProfile = (posterObj) => {
          onBack={() => setActiveTab('rooms')} 
          onMessageClick={handleMessageClick}
          onViewPosterProfile={handleViewPosterProfile}
+         isLiked={likedRoomIds.includes(getRoomId(selectedRoom))}
+         isShortlisted={shortlistedRoomIds.includes(getRoomId(selectedRoom))}
+         onToggleLike={() => handleToggleRoomLike(selectedRoom)}
+         onToggleShortlist={() => handleToggleRoomShortlist(selectedRoom)}
        />
      );
       case 'post': 
-        return <PostRoom />;
+        return <PostRoom onPosted={handleRoomPosted} />;
       case 'messages': 
         return <Messages currentUid={currentUid} initialRecipient={messagingRecipient} />;
       case 'publicProfile': 
