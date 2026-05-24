@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    color: #111827;
+    background:
+      radial-gradient(circle at top left, rgba(14, 165, 233, 0.22), transparent 32rem),
+      radial-gradient(circle at top right, rgba(16, 185, 129, 0.18), transparent 28rem),
+      linear-gradient(135deg, #f8fbff 0%, #eef8ff 42%, #f7fff8 100%);
+  }
+}
+
+@layer components {
+  .clx-app-bg {
+    background:
+      radial-gradient(circle at 8% 12%, rgba(14, 165, 233, 0.22), transparent 24rem),
+      radial-gradient(circle at 86% 8%, rgba(20, 184, 166, 0.18), transparent 22rem),
+      radial-gradient(circle at 50% 100%, rgba(249, 115, 22, 0.10), transparent 28rem),
+      linear-gradient(135deg, #f8fbff 0%, #eef8ff 45%, #f5fff7 100%);
+  }
+
+  .clx-dashboard-bg {
+    background:
+      radial-gradient(circle at 14% 8%, rgba(14, 165, 233, 0.16), transparent 22rem),
+      radial-gradient(circle at 92% 12%, rgba(16, 185, 129, 0.14), transparent 24rem),
+      linear-gradient(135deg, #f6fbff 0%, #eef7ff 50%, #f7fff8 100%);
+  }
+
+  .clx-gradient-text {
+    @apply bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500 bg-clip-text text-transparent;
+  }
+
+  .clx-card {
+    @apply rounded-2xl border border-white/70 bg-white/90 shadow-xl shadow-blue-900/10 backdrop-blur;
+  }
+
+  .clx-panel {
+    @apply rounded-3xl border border-white/70 bg-white/85 shadow-lg shadow-blue-900/10 backdrop-blur;
+  }
+
+  .clx-button-primary {
+    @apply rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500 px-6 py-3 font-bold text-white shadow-lg shadow-cyan-500/25 transition hover:shadow-xl hover:shadow-cyan-500/30;
+  }
+
+  .clx-button-dark {
+    @apply rounded-xl bg-slate-950 px-6 py-3 font-bold text-white shadow-lg shadow-slate-900/20 transition hover:bg-slate-800;
+  }
+
+  .clx-input {
+    @apply w-full rounded-xl border border-blue-100 bg-white/90 px-4 py-3 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100;
+  }
+
+  .clx-card input:not([type="range"]):not([type="checkbox"]),
+  .clx-card select,
+  .clx-card textarea {
+    border-color: rgba(191, 219, 254, 0.9) !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+
+  .clx-dashboard-bg .bg-white {
+    background-color: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(14px);
+  }
+
+  .clx-dashboard-bg .border-gray-100,
+  .clx-dashboard-bg .border-gray-200 {
+    border-color: rgba(191, 219, 254, 0.68) !important;
+  }
+
+  .clx-dashboard-bg .shadow-sm {
+    box-shadow: 0 12px 30px rgba(30, 64, 175, 0.08) !important;
+  }
+
+  .clx-dashboard-bg .bg-blue-600,
+  .clx-dashboard-bg .bg-green-600 {
+    background-image: linear-gradient(135deg, #2563eb, #06b6d4, #10b981) !important;
+    box-shadow: 0 14px 28px rgba(6, 182, 212, 0.22);
+  }
+
+  .clx-dashboard-bg .text-blue-600 {
+    color: #0891b2 !important;
+  }
+
+  .clx-dashboard-bg input:not([type="range"]):not([type="checkbox"]),
+  .clx-dashboard-bg select,
+  .clx-dashboard-bg textarea {
+    border-color: rgba(191, 219, 254, 0.9) !important;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+  }
+}
