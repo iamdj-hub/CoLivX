@@ -23,14 +23,14 @@ const RoomDetails = ({
       </div>
 
       {/* Hero Image */}
-      <div className="w-full h-80 md:h-96 rounded-3xl overflow-hidden relative shadow-sm border border-gray-100">
+      <div className="relative h-72 w-full overflow-hidden rounded-3xl border border-gray-100 shadow-sm md:h-96">
         <img 
           src={roomImage} 
           alt={room.title} 
           className="w-full h-full object-cover"
         />
-        <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-sm px-6 py-3 rounded-2xl shadow-lg border border-white/20">
-          <h1 className="text-2xl font-extrabold text-gray-900">{room.title}</h1>
+        <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-white/20 bg-white/95 px-4 py-3 shadow-lg backdrop-blur-sm sm:inset-x-auto sm:left-6 sm:px-6">
+          <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl">{room.title}</h1>
           <p className="text-gray-600 font-bold flex items-center gap-2 mt-1">
             <span>📍 {room.location}</span>
           </p>
@@ -49,11 +49,11 @@ const RoomDetails = ({
               <p className="text-sm text-gray-400 font-bold uppercase tracking-wider mb-1">Monthly Rent</p>
               <p className="text-2xl font-extrabold text-blue-600">${room.rent}<span className="text-lg text-gray-500 font-medium">/mo</span></p>
             </div>
-            <div className="flex-1 min-w-[120px] border-l border-gray-100 pl-4">
+            <div className="flex-1 min-w-[120px] border-t border-gray-100 pt-4 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
               <p className="text-sm text-gray-400 font-bold uppercase tracking-wider mb-1">Move-in Date</p>
               <p className="text-xl font-bold text-gray-900">{room.availableFrom || 'Immediate'}</p>
             </div>
-            <div className="flex-1 min-w-[120px] border-l border-gray-100 pl-4">
+            <div className="flex-1 min-w-[120px] border-t border-gray-100 pt-4 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
               <p className="text-sm text-gray-400 font-bold uppercase tracking-wider mb-1">Lease Term</p>
               <p className="text-xl font-bold text-gray-900">{room.leaseTerm || '6+ Months'}</p>
             </div>
@@ -79,7 +79,7 @@ const RoomDetails = ({
           {/* House Rules & Preferences */}
           <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
             <h3 className="text-xl font-extrabold text-gray-900 mb-4">House Rules & Vibe</h3>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <span className={`px-4 py-2 rounded-xl text-sm font-bold uppercase ${room.rules?.smoking ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
                 {room.rules?.smoking ? '🚬 Smoking Allowed' : '🚭 No Smoking'}
               </span>

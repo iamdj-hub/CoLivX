@@ -114,15 +114,15 @@ const PublicProfile = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 animate-fade-in pb-10">
+    <div className="mx-auto max-w-4xl space-y-6 pb-10 animate-fade-in">
       {/* Header & Actions */}
-      <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 relative overflow-hidden">
+      <div className="relative overflow-hidden rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-8">
         
         {/* Top Right: Shortlist Heart */}
-        <div className="absolute top-0 right-0 p-6 flex gap-3">
+        <div className="mb-5 flex justify-end sm:absolute sm:right-0 sm:top-0 sm:mb-0 sm:p-6">
           <button 
             onClick={onToggleShortlist} 
-            className={`flex items-center gap-2 font-bold py-2 px-5 rounded-xl transition border ${
+            className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-bold transition sm:px-5 ${
               isShortlisted 
                 ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100' 
                 : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
@@ -132,15 +132,15 @@ const PublicProfile = ({
           </button>
         </div>
         
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-center sm:text-left">
           {/* Avatar */}
-          <div className="w-28 h-28 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-5xl font-extrabold shadow-md">
+          <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-4xl font-extrabold text-white shadow-md sm:h-28 sm:w-28 sm:text-5xl">
             {name.charAt(0).toUpperCase()}
           </div>
           
           {/* Identity */}
           <div>
-            <h2 className="text-3xl font-extrabold text-gray-900 flex items-center gap-3">
+            <h2 className="flex flex-wrap items-center justify-center gap-3 text-2xl font-extrabold text-gray-900 sm:justify-start sm:text-3xl">
               {name}
               {match && (
                 <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full font-bold">
@@ -148,12 +148,12 @@ const PublicProfile = ({
                 </span>
               )}
             </h2>
-            <p className="text-lg text-gray-500 font-medium mt-1">
+            <p className="mt-1 text-base font-medium text-gray-500 sm:text-lg">
               {identity.age || 'Age not set'} yrs • {role} • 📍 {profile.city || 'Local Area'}
             </p>
             
             {/* Contact Action Buttons */}
-            <div className="flex gap-3 mt-5">
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
               <button 
                 onClick={() => onMessageClick({
                   _id: profileUid,
@@ -162,13 +162,13 @@ const PublicProfile = ({
                   name,
                   email: identity.email
                 })}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-md flex items-center gap-2"
+                className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 font-bold text-white shadow-md transition hover:bg-blue-700"
               >
                 💬 Message
               </button>
               <a 
                 href={`mailto:${identity.email || 'user@example.com'}?subject=Saw your profile on CoLivX!`}
-                className="bg-gray-900 hover:bg-black text-white font-bold py-2.5 px-6 rounded-xl transition shadow-md flex items-center gap-2"
+                className="flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-6 py-2.5 font-bold text-white shadow-md transition hover:bg-black"
               >
                 ✉️ Email
               </a>
@@ -177,9 +177,9 @@ const PublicProfile = ({
         </div>
         
         {/* Bio */}
-        <div className="mt-8 bg-gray-50 p-6 rounded-2xl border border-gray-100">
+        <div className="mt-8 rounded-2xl border border-gray-100 bg-gray-50 p-5 sm:p-6">
           <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">About Them</h3>
-          <p className="text-gray-800 text-lg italic">"{profile.bio || 'Looking for a great roommate to share a space with! Very chill and easy going.'}"</p>
+          <p className="text-base italic text-gray-800 sm:text-lg">"{profile.bio || 'Looking for a great roommate to share a space with! Very chill and easy going.'}"</p>
         </div>
       </div>
 

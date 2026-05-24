@@ -71,8 +71,8 @@ const Profile = ({
   // ==========================================
   if (isEditingProfile) {
     return (
-      <div className="max-w-3xl mx-auto space-y-6 animate-fade-in pb-10">
-        <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+      <div className="mx-auto max-w-3xl space-y-6 pb-10 animate-fade-in">
+        <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <h2 className="text-2xl font-extrabold text-gray-900">Edit My Profile</h2>
           <button onClick={() => setIsEditingProfile(false)} className="text-gray-500 hover:text-gray-900 font-bold px-4 py-2 bg-gray-100 rounded-xl transition">
             Cancel
@@ -81,9 +81,9 @@ const Profile = ({
         
         <form onSubmit={handleUpdateProfile} className="space-y-6">
           {/* Identity & Bio */}
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+          <div className="space-y-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-8">
             <h3 className="text-lg font-bold text-gray-900 border-b pb-2">Identity & Bio</h3>
-            <div className="flex items-center gap-4 rounded-2xl bg-cyan-50/60 p-4 border border-cyan-100">
+            <div className="flex flex-col items-center gap-4 rounded-2xl border border-cyan-100 bg-cyan-50/60 p-4 text-center sm:flex-row sm:text-left">
               {renderAvatar(profilePhotoPreview || editFormData?.profileImage, editFormData?.displayName)}
               <div className="flex-1">
                 <label className="block text-sm font-bold text-gray-700 mb-2">Profile Photo</label>
@@ -103,7 +103,7 @@ const Profile = ({
                 </button>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Display Name</label>
                 <input type="text" value={editFormData?.displayName || ''} onChange={(e) => setEditFormData({...editFormData, displayName: e.target.value})} className="w-full px-4 py-3 border rounded-xl" required />
@@ -217,31 +217,31 @@ const Profile = ({
   // READ MODE UI (The Dashboard View)
   // ==========================================
   return (
-    <div className="max-w-4xl mx-auto space-y-6 animate-fade-in pb-10">
+    <div className="mx-auto max-w-4xl space-y-6 pb-10 animate-fade-in">
       
       {/* Header Card */}
-      <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-6">
-          <button onClick={() => setIsEditingProfile(true)} className="bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-xl transition">
+      <div className="relative overflow-hidden rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-8">
+        <div className="mb-5 flex justify-end sm:absolute sm:right-0 sm:top-0 sm:mb-0 sm:p-6">
+          <button onClick={() => setIsEditingProfile(true)} className="rounded-xl bg-gray-100 px-5 py-2 text-sm font-bold text-gray-900 transition hover:bg-gray-200 sm:px-6">
             ✏️ Edit Profile
           </button>
         </div>
         
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-center sm:text-left">
           {renderAvatar(profileData?.profileImage, profileData?.displayName)}
           <div>
-            <h2 className="text-3xl font-extrabold text-gray-900 flex items-center gap-2">
+            <h2 className="flex flex-wrap items-center justify-center gap-2 text-2xl font-extrabold text-gray-900 sm:justify-start sm:text-3xl">
               {profileData?.displayName || "Anonymous User"}
               {profileData?.gender === 'male' && <span className="text-blue-500 text-xl" title="Male">♂</span>}
               {profileData?.gender === 'female' && <span className="text-pink-500 text-xl" title="Female">♀</span>}
             </h2>
-            <p className="text-lg text-gray-500 font-medium mt-1">
+            <p className="mt-1 text-base font-medium text-gray-500 sm:text-lg">
               {profileData?.age ? `${profileData.age} yrs` : ''} • {profileData?.occupation || 'Student'} • 📍 {profileData?.city || 'No City Set'}
             </p>
             <p className="text-sm font-bold text-yellow-600 mt-2">
               {profileData?.trustRating ? `${profileData.trustRating}/5 average rating` : 'No ratings yet'} • {profileData?.reviewsCount || 0} reviews
             </p>
-            <div className="flex gap-2 mt-3">
+            <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
               <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${profileData?.smoking ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
                 {profileData?.smoking ? '🚬 Smoker' : '🚭 Non-Smoker'}
               </span>
@@ -255,9 +255,9 @@ const Profile = ({
           </div>
         </div>
         
-        <div className="mt-8 bg-gray-50 p-6 rounded-2xl border border-gray-100">
+        <div className="mt-8 rounded-2xl border border-gray-100 bg-gray-50 p-5 sm:p-6">
           <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">About Me</h3>
-          <p className="text-gray-800 text-lg italic">"{profileData?.bio || 'No bio added yet. Tell people about your vibe!'}"</p>
+          <p className="text-base italic text-gray-800 sm:text-lg">"{profileData?.bio || 'No bio added yet. Tell people about your vibe!'}"</p>
         </div>
       </div>
 

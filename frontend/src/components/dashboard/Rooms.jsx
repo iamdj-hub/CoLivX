@@ -212,7 +212,7 @@ const Rooms = ({ onViewRoom }) => {
 
   return (
     <div className="space-y-6 animate-fade-in pb-10">
-      <div className="flex justify-between items-end mb-8">
+      <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-3xl font-extrabold text-gray-900">Available Rooms</h2>
           <p className="text-gray-500 font-medium mt-1">Find your perfect space.</p>

@@ -221,8 +221,8 @@ const Messages = ({ currentUid, initialRecipient }) => {
   }
 
   return (
-    <div className="h-[650px] flex bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="w-full md:w-1/3 border-r border-gray-100 flex flex-col">
+    <div className="flex min-h-[calc(100dvh-9rem)] overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm md:h-[650px] md:min-h-0">
+      <div className={`${activeConversation ? 'hidden md:flex' : 'flex'} w-full flex-col border-r border-gray-100 md:w-1/3`}>
         <div className="p-4 border-b">
           <div className="font-bold text-gray-800">Messages</div>
           <div className={`text-xs font-bold mt-1 ${socketConnected ? 'text-green-600' : 'text-gray-400'}`}>
@@ -259,14 +259,23 @@ const Messages = ({ currentUid, initialRecipient }) => {
         </div>
       </div>
 
-      <div className="hidden md:flex w-2/3 flex-col bg-gray-50">
+      <div className={`${activeConversation ? 'flex' : 'hidden md:flex'} w-full flex-col bg-gray-50 md:w-2/3`}>
         {activeConversation ? (
           <>
-            <div className="p-4 bg-white border-b">
-              <div className="font-bold text-gray-900">
-                {activeConversation.otherUser?.displayName || 'CoLivX User'}
+            <div className="flex items-center gap-3 border-b bg-white p-4">
+              <button
+                type="button"
+                onClick={() => setActiveConversation(null)}
+                className="rounded-full bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700 md:hidden"
+              >
+                Back
+              </button>
+              <div>
+                <div className="font-bold text-gray-900">
+                  {activeConversation.otherUser?.displayName || 'CoLivX User'}
+                </div>
+                <div className="text-xs text-gray-500">Direct roommate chat</div>
               </div>
-              <div className="text-xs text-gray-500">Direct roommate chat</div>
             </div>
 
             <div className="flex-1 p-4 overflow-y-auto space-y-4">
@@ -281,7 +290,7 @@ const Messages = ({ currentUid, initialRecipient }) => {
                   const mine = message.senderId === currentUid;
                   return (
                     <div key={message._id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[70%] p-3 rounded-2xl shadow-sm ${
+                      <div className={`max-w-[82%] p-3 rounded-2xl shadow-sm md:max-w-[70%] ${
                         mine ? 'bg-blue-600 text-white' : 'bg-white text-gray-900'
                       }`}>
                         <div>{message.text}</div>
@@ -298,18 +307,18 @@ const Messages = ({ currentUid, initialRecipient }) => {
 
             <form onSubmit={handleSend} className="p-4 bg-white border-t space-y-2">
               {error && <p className="text-sm text-red-500 font-medium">{error}</p>}
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <input
                   type="text"
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   placeholder="Type a message..."
-                  className="flex-1 p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="min-w-0 flex-1 rounded-xl border border-gray-200 p-3 outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
                   type="submit"
                   disabled={sending || !draft.trim()}
-                  className="px-5 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-xl font-bold transition"
+                  className="rounded-xl bg-blue-600 px-5 py-3 font-bold text-white transition hover:bg-blue-700 disabled:bg-blue-300"
                 >
                   {sending ? 'Sending...' : 'Send'}
                 </button>

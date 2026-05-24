@@ -5,6 +5,7 @@
     margin: 0;
     min-width: 320px;
     min-height: 100vh;
+    overflow-x: hidden;
     color: #111827;
     background:
       radial-gradient(circle at top left, rgba(14, 165, 233, 0.22), transparent 32rem),
@@ -90,5 +91,32 @@
   .clx-dashboard-bg textarea {
     border-color: rgba(191, 219, 254, 0.9) !important;
     background-color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  @media (max-width: 640px) {
+    .clx-card,
+    .clx-panel,
+    .clx-dashboard-bg .rounded-3xl {
+      border-radius: 1.25rem;
+    }
+
+    .clx-dashboard-bg .p-8 {
+      padding: 1.25rem !important;
+    }
+
+    .clx-dashboard-bg .text-3xl {
+      font-size: 1.65rem;
+      line-height: 2rem;
+    }
+
+    .clx-dashboard-bg .text-2xl {
+      font-size: 1.35rem;
+      line-height: 1.75rem;
+    }
+
+    .clx-dashboard-bg .text-xl {
+      font-size: 1.1rem;
+      line-height: 1.55rem;
+    }
   }
 }

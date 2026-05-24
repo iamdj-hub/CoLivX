@@ -237,7 +237,7 @@ const handleViewPosterProfile = (posterObj) => {
   };
 
   return (
-    <div className="clx-dashboard-bg flex h-screen overflow-hidden font-sans">
+    <div className="clx-dashboard-bg flex min-h-dvh flex-col font-sans md:h-screen md:flex-row md:overflow-hidden">
       
       {/* MODULAR SIDEBAR */}
       <Sidebar 
@@ -247,7 +247,7 @@ const handleViewPosterProfile = (posterObj) => {
       />
 
       {/* MAIN CONTENT AREA */}
-      <div className="flex-1 overflow-y-auto p-8 relative">
+      <div className="relative flex-1 overflow-y-auto p-4 pb-28 sm:p-6 sm:pb-28 lg:p-8 md:pb-8">
         {renderContent()}
       </div>
       

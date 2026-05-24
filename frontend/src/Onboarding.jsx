@@ -82,7 +82,7 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="clx-app-bg flex min-h-screen">
+    <div className="clx-app-bg flex min-h-dvh">
       
       {/* LEFT SIDE: Dynamic Visual Engine */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-950 via-blue-800 to-teal-600 text-white flex-col justify-between p-16 relative overflow-hidden">
@@ -125,8 +125,8 @@ const Onboarding = () => {
       </div>
 
       {/* RIGHT SIDE: The Form Engine */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-16 py-12 overflow-y-auto">
-        <div className="clx-card max-w-md w-full mx-auto p-8">
+      <div className="flex w-full flex-col justify-center overflow-y-auto px-4 py-8 sm:px-10 lg:w-1/2 lg:px-16 lg:py-12">
+        <div className="clx-card mx-auto w-full max-w-md p-5 sm:p-8">
           
           {/* Progress Bar */}
           <div className="mb-10">
@@ -254,17 +254,17 @@ const Onboarding = () => {
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between pt-8">
+            <div className="flex flex-col gap-3 pt-8 sm:flex-row sm:justify-between">
               {step > 1 ? (
                 <button type="button" onClick={prevStep} className="px-6 py-3.5 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-100 transition shadow-sm">
                   Back
                 </button>
               ) : (
-                <div></div> // Empty div to keep 'Next' aligned right
+                <div className="hidden sm:block"></div>
               )}
 
               {step < 3 ? (
-                <button type="button" onClick={nextStep} className="px-8 py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                <button type="button" onClick={nextStep} className="rounded-xl bg-blue-600 px-8 py-3.5 font-bold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 sm:ml-auto">
                   Continue
                 </button>
               ) : (
