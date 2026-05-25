@@ -3,6 +3,21 @@ import axios from 'axios';
 import { auth } from '../../firebase';
 import { API_BASE_URL } from '../../api';
 
+const getAvailabilityLabel = (allocation = {}) => {
+  const status = allocation.status || 'available';
+  if (status === 'available') return 'Available';
+
+  const labelMap = {
+    allocated: 'Allocated',
+    booked: 'Booked',
+    rented: 'Rented'
+  };
+  const label = labelMap[status] || 'Taken';
+  return `${label}${allocation.durationValue ? ` for ${allocation.durationValue} ${allocation.durationUnit || 'months'}` : ''}`;
+};
+
+const isRoomTaken = (allocation = {}) => (allocation.status || 'available') !== 'available';
+
 const Profile = ({ 
   profileData, 
   setProfileData,
@@ -10,7 +25,8 @@ const Profile = ({
   setIsEditingProfile, 
   editFormData, 
   setEditFormData, 
-  handleUpdateProfile 
+  handleUpdateProfile,
+  onViewRoom
 }) => {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [profilePhotoPreview, setProfilePhotoPreview] = useState('');
@@ -332,7 +348,12 @@ const Profile = ({
         {profileData?.postedRooms?.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {profileData.postedRooms.map((room, index) => (
-              <div key={index} className="border border-gray-200 rounded-xl p-4 flex flex-col gap-3 hover:shadow-md transition">
+              <button
+                type="button"
+                key={room._id || room.id || index}
+                onClick={() => onViewRoom?.(room)}
+                className="flex flex-col gap-3 rounded-xl border border-gray-200 p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              >
                 <div className="bg-gray-100 h-32 rounded-lg w-full flex items-center justify-center text-gray-400 font-bold overflow-hidden">
                   {room.images && room.images.length > 0 ? (
                     <img src={room.images[0]} className="h-full w-full object-cover" alt="Room" />
@@ -343,13 +364,11 @@ const Profile = ({
                 <div>
                   <h4 className="font-bold text-gray-800 text-lg truncate">{room.title || 'Room Listing'}</h4>
                   <p className="text-blue-600 font-extrabold">₹{room.rent || room.rentPerMonth || '0'}/mo</p>
-                  <p className={`mt-1 text-xs font-black ${room.allocation?.status === 'allocated' ? 'text-amber-600' : 'text-emerald-600'}`}>
-                    {room.allocation?.status === 'allocated'
-                      ? `Allocated for ${room.allocation.durationValue || '?'} ${room.allocation.durationUnit || 'months'}`
-                      : 'Available'}
+                  <p className={`mt-1 text-xs font-black ${isRoomTaken(room.allocation) ? 'text-amber-600' : 'text-emerald-600'}`}>
+                    {getAvailabilityLabel(room.allocation)}
                   </p>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         ) : (

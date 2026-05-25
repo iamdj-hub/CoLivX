@@ -29,11 +29,27 @@ const getRoomImage = (room) => (
   ''
 );
 
+const getAvailabilityLabel = (allocation = {}) => {
+  const status = allocation.status || 'available';
+  if (status === 'available') return 'Available';
+
+  const labelMap = {
+    allocated: 'Allocated',
+    booked: 'Booked',
+    rented: 'Rented'
+  };
+  const label = labelMap[status] || 'Taken';
+  return `${label}${allocation.durationValue ? ` for ${allocation.durationValue} ${allocation.durationUnit || 'months'}` : ''}`;
+};
+
+const isRoomTaken = (allocation = {}) => (allocation.status || 'available') !== 'available';
+
 const PublicProfile = ({ 
   user, 
   isShortlisted, 
   onToggleShortlist, 
-  onMessageClick 
+  onMessageClick,
+  onViewRoom
 }) => {
   const [profileData, setProfileData] = useState(null);
   const [reviewRating, setReviewRating] = useState(5);
@@ -285,7 +301,12 @@ const PublicProfile = ({
         {postedRooms.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {postedRooms.map((room) => (
-              <div key={room._id} className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+              <button
+                type="button"
+                key={room._id || room.id}
+                onClick={() => onViewRoom?.(room)}
+                className="overflow-hidden rounded-xl border border-gray-200 bg-white text-left transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              >
                 <div className="flex h-32 w-full items-center justify-center overflow-hidden bg-gray-100 text-sm font-bold text-gray-400">
                   {getRoomImage(room) ? (
                     <img src={getRoomImage(room)} alt={room.title || 'Posted room'} className="h-full w-full object-cover" />
@@ -296,14 +317,12 @@ const PublicProfile = ({
                 <div className="p-4">
                   <h4 className="font-bold text-gray-900 truncate">{room.title}</h4>
                   <p className="text-blue-600 font-extrabold mt-1">₹{room.rent}/mo</p>
-                  <p className={`mt-1 text-xs font-black ${room.allocation?.status === 'allocated' ? 'text-amber-600' : 'text-emerald-600'}`}>
-                    {room.allocation?.status === 'allocated'
-                      ? `Allocated for ${room.allocation.durationValue || '?'} ${room.allocation.durationUnit || 'months'}`
-                      : 'Available'}
+                  <p className={`mt-1 text-xs font-black ${isRoomTaken(room.allocation) ? 'text-amber-600' : 'text-emerald-600'}`}>
+                    {getAvailabilityLabel(room.allocation)}
                   </p>
                   <p className="text-gray-500 text-sm mt-1">{room.location}</p>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         ) : (

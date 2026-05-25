@@ -20,6 +20,8 @@ const roomSchema = new mongoose.Schema({
         }
     },
     description: String,
+    availableFrom: { type: String, default: '' },
+    leaseTerm: { type: String, default: '' },
     amenities: [String],
     rules: {
         smoking: Boolean,
@@ -45,7 +47,7 @@ const roomSchema = new mongoose.Schema({
     allocation: {
         status: {
             type: String,
-            enum: ['available', 'allocated'],
+            enum: ['available', 'allocated', 'booked', 'rented'],
             default: 'available'
         },
         durationValue: { type: Number, default: 0 },

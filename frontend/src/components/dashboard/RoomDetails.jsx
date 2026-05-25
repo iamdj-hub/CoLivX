@@ -2,6 +2,31 @@ import { useState } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../../api';
 
+const getRoomCoords = (targetRoom) => {
+  const coordinates = targetRoom?.locationCoords?.coordinates;
+  if (!coordinates || coordinates.length !== 2) return { latitude: '', longitude: '' };
+
+  return {
+    longitude: coordinates[0] ?? '',
+    latitude: coordinates[1] ?? ''
+  };
+};
+
+const getAvailabilityLabel = (allocation = {}) => {
+  const status = allocation.status || 'available';
+  if (status === 'available') return 'Available';
+
+  const labelMap = {
+    allocated: 'Allocated',
+    booked: 'Booked',
+    rented: 'Rented'
+  };
+  const label = labelMap[status] || 'Taken';
+  return `${label}${allocation.durationValue ? ` for ${allocation.durationValue} ${allocation.durationUnit || 'months'}` : ''}`;
+};
+
+const isRoomTaken = (allocation = {}) => (allocation.status || 'available') !== 'available';
+
 const RoomDetails = ({ 
   room, 
   onBack, 
@@ -15,11 +40,17 @@ const RoomDetails = ({
   onRoomUpdated
 }) => {
   const buildEditData = (targetRoom) => ({
+    ...getRoomCoords(targetRoom),
     title: targetRoom?.title || '',
     rent: targetRoom?.rent || '',
     location: targetRoom?.location || '',
+    availableFrom: targetRoom?.availableFrom || '',
+    leaseTerm: targetRoom?.leaseTerm || '',
     description: targetRoom?.description || '',
     amenities: targetRoom?.amenities?.join(', ') || '',
+    ruleSmoking: Boolean(targetRoom?.rules?.smoking),
+    rulePets: Boolean(targetRoom?.rules?.pets),
+    ruleDietary: targetRoom?.rules?.dietary || 'any',
     preferredGender: targetRoom?.renterPreferences?.gender || 'any',
     preferredOccupation: targetRoom?.renterPreferences?.occupation || 'any',
     preferredBudgetMin: targetRoom?.renterPreferences?.budgetMin || '',
@@ -72,6 +103,10 @@ const RoomDetails = ({
         title: editData.title,
         rent: Number(editData.rent),
         location: editData.location,
+        latitude: editData.latitude,
+        longitude: editData.longitude,
+        availableFrom: editData.availableFrom,
+        leaseTerm: editData.leaseTerm,
         description: editData.description,
         amenities: editData.amenities.split(',').map((item) => item.trim()).filter(Boolean),
         images: room.images || [],
@@ -87,7 +122,11 @@ const RoomDetails = ({
           durationValue: Number(editData.allocationDurationValue) || 0,
           durationUnit: editData.allocationDurationUnit
         },
-        rules: room.rules || {}
+        rules: {
+          smoking: editData.ruleSmoking,
+          pets: editData.rulePets,
+          dietary: editData.ruleDietary
+        }
       });
 
       if (response.data.success) {
@@ -127,7 +166,7 @@ const RoomDetails = ({
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-2xl font-black text-slate-900">Edit Room Listing</h2>
-              <p className="text-sm font-medium text-slate-500">Update details or mark the room as allocated.</p>
+              <p className="text-sm font-medium text-slate-500">Update details or mark the room as booked or rented.</p>
             </div>
             <button type="button" onClick={() => setIsEditing(false)} className="rounded-xl bg-slate-100 px-4 py-2 font-bold text-slate-700">
               Cancel
@@ -140,8 +179,27 @@ const RoomDetails = ({
             <input className="clx-input md:col-span-2" value={editData.title} onChange={(e) => handleEditChange('title', e.target.value)} placeholder="Room title" required />
             <input className="clx-input" type="number" value={editData.rent} onChange={(e) => handleEditChange('rent', e.target.value)} placeholder="Monthly rent in INR" required />
             <input className="clx-input" value={editData.location} onChange={(e) => handleEditChange('location', e.target.value)} placeholder="Location" required />
+            <input className="clx-input" type="number" step="any" value={editData.latitude} onChange={(e) => handleEditChange('latitude', e.target.value)} placeholder="Latitude" />
+            <input className="clx-input" type="number" step="any" value={editData.longitude} onChange={(e) => handleEditChange('longitude', e.target.value)} placeholder="Longitude" />
+            <input className="clx-input" type="date" value={editData.availableFrom} onChange={(e) => handleEditChange('availableFrom', e.target.value)} />
+            <input className="clx-input" value={editData.leaseTerm} onChange={(e) => handleEditChange('leaseTerm', e.target.value)} placeholder="Lease term, e.g. 6+ months" />
             <textarea className="clx-input md:col-span-2" rows="3" value={editData.description} onChange={(e) => handleEditChange('description', e.target.value)} placeholder="Description" />
             <input className="clx-input md:col-span-2" value={editData.amenities} onChange={(e) => handleEditChange('amenities', e.target.value)} placeholder="Amenities, comma separated" />
+
+            <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-bold text-slate-700">
+              <input type="checkbox" checked={editData.ruleSmoking} onChange={(e) => handleEditChange('ruleSmoking', e.target.checked)} className="h-5 w-5 accent-blue-600" />
+              Smoking allowed
+            </label>
+            <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-bold text-slate-700">
+              <input type="checkbox" checked={editData.rulePets} onChange={(e) => handleEditChange('rulePets', e.target.checked)} className="h-5 w-5 accent-blue-600" />
+              Pets allowed
+            </label>
+            <select className="clx-input md:col-span-2" value={editData.ruleDietary} onChange={(e) => handleEditChange('ruleDietary', e.target.value)}>
+              <option value="any">Any diet</option>
+              <option value="veg">Vegetarian kitchen</option>
+              <option value="non-veg">Non-veg allowed</option>
+              <option value="vegan">Vegan preferred</option>
+            </select>
 
             <select className="clx-input" value={editData.preferredGender} onChange={(e) => handleEditChange('preferredGender', e.target.value)}>
               <option value="any">Any gender</option>
@@ -161,9 +219,11 @@ const RoomDetails = ({
 
             <select className="clx-input" value={editData.allocationStatus} onChange={(e) => handleEditChange('allocationStatus', e.target.value)}>
               <option value="available">Available</option>
+              <option value="booked">Booked / reserved</option>
+              <option value="rented">Already rented</option>
               <option value="allocated">Allocated</option>
             </select>
-            {editData.allocationStatus === 'allocated' && (
+            {editData.allocationStatus !== 'available' && (
               <div className="grid grid-cols-2 gap-3">
                 <input className="clx-input" type="number" min="1" value={editData.allocationDurationValue} onChange={(e) => handleEditChange('allocationDurationValue', e.target.value)} placeholder="Duration" />
                 <select className="clx-input" value={editData.allocationDurationUnit} onChange={(e) => handleEditChange('allocationDurationUnit', e.target.value)}>
@@ -217,8 +277,8 @@ const RoomDetails = ({
             </div>
             <div className="flex-1 min-w-[120px] border-t border-gray-100 pt-4 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
               <p className="text-sm text-gray-400 font-bold uppercase tracking-wider mb-1">Status</p>
-              <p className={`text-xl font-bold ${allocation.status === 'allocated' ? 'text-amber-600' : 'text-emerald-600'}`}>
-                {allocation.status === 'allocated' ? `Allocated for ${allocation.durationValue || '?'} ${allocation.durationUnit || 'months'}` : 'Available'}
+              <p className={`text-xl font-bold ${isRoomTaken(allocation) ? 'text-amber-600' : 'text-emerald-600'}`}>
+                {getAvailabilityLabel(allocation)}
               </p>
             </div>
           </div>

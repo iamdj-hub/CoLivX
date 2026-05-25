@@ -27,6 +27,8 @@ const getDisplayName = (user) => (
     'CoLivX User'
 );
 
+const escapeRegExp = (value) => String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const buildProfilePayload = async (uid) => {
     const user = await User.findById(uid);
     if (!user) return null;
@@ -265,18 +267,11 @@ exports.getMatches = async (req, res) => {
         const currentUser = await Preference.findOne({ userId: uid });
         if (!currentUser) return res.status(404).json({ message: "User profile not found" });
 
-        // DEBUG: Log status
-        console.log("Searching for city:", currentUser.city);
-        console.log("Current user vector:", currentUser.matchVector ? "Exists" : "MISSING");
-
-        // 2. Find Candidates (Same city, has matchVector, isn't current user)
+        // 2. Find Candidates (has matchVector, isn't current user)
         const candidates = await Preference.find({
-            city: { $regex: new RegExp(`^${currentUser.city}$`, 'i') }, 
             userId: { $ne: uid },
             matchVector: { $exists: true } 
         }).populate('userId', 'displayName age email profileImage');
-
-        console.log("Found candidates in DB:", candidates.length);
 
         // 3. Rank: Calculate Similarity
         const rankedMatches = candidates.map(candidate => {
@@ -300,7 +295,17 @@ exports.getMatches = async (req, res) => {
         // 4. Sort: Highest first
         rankedMatches.sort((a, b) => b.matchPercentage - a.matchPercentage);
 
-        res.status(200).json({ success: true, matches: rankedMatches });
+        const currentCity = String(currentUser.city || '').trim();
+        const currentCityRegex = new RegExp(`^${escapeRegExp(currentCity)}$`, 'i');
+        const sameCityMatches = rankedMatches.filter(match => currentCity && currentCityRegex.test(match.city || ''));
+        const globalMatches = rankedMatches.filter(match => !currentCity || !currentCityRegex.test(match.city || ''));
+
+        res.status(200).json({
+            success: true,
+            matches: sameCityMatches,
+            sameCityMatches,
+            globalMatches
+        });
     } catch (error) {
         console.error("Match error:", error);
         res.status(500).json({ success: false, message: error.message });

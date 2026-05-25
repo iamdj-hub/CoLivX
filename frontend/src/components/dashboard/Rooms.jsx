@@ -125,6 +125,21 @@ const preferenceText = (room) => {
   return items.length ? items.join(' • ') : 'Open to suitable renters';
 };
 
+const getAvailabilityLabel = (allocation = {}) => {
+  const status = allocation.status || 'available';
+  if (status === 'available') return 'Available';
+
+  const labelMap = {
+    allocated: 'Allocated',
+    booked: 'Booked',
+    rented: 'Rented'
+  };
+  const label = labelMap[status] || 'Taken';
+  return `${label}${allocation.durationValue ? ` for ${allocation.durationValue} ${allocation.durationUnit || 'months'}` : ''}`;
+};
+
+const isRoomTaken = (allocation = {}) => (allocation.status || 'available') !== 'available';
+
 // 1. Accept the prop
 const Rooms = ({
   onViewRoom,
@@ -253,8 +268,8 @@ const Rooms = ({
     <div className="space-y-6 animate-fade-in pb-10">
       <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-3xl font-extrabold text-gray-900">Available Rooms</h2>
-          <p className="text-gray-500 font-medium mt-1">Find your perfect space.</p>
+          <h2 className="text-3xl font-extrabold text-gray-900">Room Listings</h2>
+          <p className="text-gray-500 font-medium mt-1">Find your perfect space, including rooms marked booked or rented.</p>
         </div>
       </div>
 
@@ -347,9 +362,9 @@ const Rooms = ({
                 </div>
               )}
               <h3 className="text-xl font-bold text-gray-900 mb-4 line-clamp-1">{room.title}</h3>
-              {room.allocation?.status === 'allocated' && (
+              {isRoomTaken(room.allocation) && (
                 <div className="mb-3 inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-700">
-                  Allocated for {room.allocation.durationValue || '?'} {room.allocation.durationUnit || 'months'}
+                  {getAvailabilityLabel(room.allocation)}
                 </div>
               )}
               <div className="mb-4 rounded-xl bg-cyan-50 px-3 py-2 text-xs font-bold text-cyan-800">

@@ -25,6 +25,7 @@ const buildEditFormData = (profileData) => ({
 const Dashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('matches');
+  const [roomDetailsBackTab, setRoomDetailsBackTab] = useState('rooms');
 
   const [selectedRoom, setSelectedRoom] = useState(null);
   // Core Data States
@@ -75,8 +76,9 @@ const Dashboard = () => {
     ));
   };
 
-  const handleViewRoom = (room) => {
+  const handleViewRoom = (room, backTab = activeTab) => {
   setSelectedRoom(room);
+  setRoomDetailsBackTab(backTab || 'rooms');
   setActiveTab('roomDetails');
 };
 
@@ -261,7 +263,7 @@ const handleViewPosterProfile = (posterObj) => {
      return (
        <RoomDetails 
          room={selectedRoom} 
-         onBack={() => setActiveTab('rooms')} 
+         onBack={() => setActiveTab(roomDetailsBackTab || 'rooms')} 
          onMessageClick={handleMessageClick}
          onViewPosterProfile={handleViewPosterProfile}
          isLiked={likedRoomIds.includes(getRoomId(selectedRoom))}
@@ -282,6 +284,7 @@ const handleViewPosterProfile = (posterObj) => {
             isShortlisted={shortlistedUsers.includes(selectedUser?.userId?._id || selectedUser?.id)}
             onToggleShortlist={() => handleToggleShortlist(selectedUser?.userId?._id || selectedUser?.id)}
             onMessageClick={handleMessageClick}
+            onViewRoom={(room) => handleViewRoom(room, 'publicProfile')}
           />
         );
       case 'profile': 
@@ -293,6 +296,7 @@ const handleViewPosterProfile = (posterObj) => {
                  editFormData={editFormData} 
                  setEditFormData={setEditFormData} 
                  handleUpdateProfile={handleUpdateProfile} 
+                 onViewRoom={(room) => handleViewRoom(room, 'profile')}
                />;
       default: 
         return <Matches uid={currentUid} onViewProfile={handleViewProfile} />;

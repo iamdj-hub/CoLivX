@@ -67,13 +67,21 @@ const PostRoom = ({ onPosted }) => {
     location: '',
     latitude: '',
     longitude: '',
+    availableFrom: '',
+    leaseTerm: '',
     description: '',
     amenities: '',
+    ruleSmoking: false,
+    rulePets: false,
+    ruleDietary: 'any',
     preferredGender: 'any',
     preferredOccupation: 'any',
     preferredBudgetMin: '',
     preferredBudgetMax: '',
     preferenceNotes: '',
+    allocationStatus: 'available',
+    allocationDurationValue: '',
+    allocationDurationUnit: 'months',
   });
   const [roomPhotos, setRoomPhotos] = useState([]);
   const [photoPreviews, setPhotoPreviews] = useState([]);
@@ -135,12 +143,14 @@ const PostRoom = ({ onPosted }) => {
       location: formData.location,
       latitude: formData.latitude,
       longitude: formData.longitude,
+      availableFrom: formData.availableFrom,
+      leaseTerm: formData.leaseTerm,
       description: formData.description,
       amenities: formData.amenities.split(',').map(a => a.trim()).filter(Boolean),
       rules: {
-        smoking: false,
-        pets: false,
-        dietary: 'any'
+        smoking: formData.ruleSmoking,
+        pets: formData.rulePets,
+        dietary: formData.ruleDietary
       },
       renterPreferences: {
         gender: formData.preferredGender,
@@ -148,6 +158,11 @@ const PostRoom = ({ onPosted }) => {
         budgetMin: Number(formData.preferredBudgetMin) || 0,
         budgetMax: Number(formData.preferredBudgetMax) || 0,
         notes: formData.preferenceNotes
+      },
+      allocation: {
+        status: formData.allocationStatus,
+        durationValue: Number(formData.allocationDurationValue) || 0,
+        durationUnit: formData.allocationDurationUnit
       },
       images: uploadedImages
     };
@@ -165,13 +180,21 @@ const PostRoom = ({ onPosted }) => {
         location: '',
         latitude: '',
         longitude: '',
+        availableFrom: '',
+        leaseTerm: '',
         description: '',
         amenities: '',
+        ruleSmoking: false,
+        rulePets: false,
+        ruleDietary: 'any',
         preferredGender: 'any',
         preferredOccupation: 'any',
         preferredBudgetMin: '',
         preferredBudgetMax: '',
         preferenceNotes: '',
+        allocationStatus: 'available',
+        allocationDurationValue: '',
+        allocationDurationUnit: 'months',
       });
       setRoomPhotos([]);
       setPhotoPreviews([]);
@@ -323,6 +346,27 @@ const PostRoom = ({ onPosted }) => {
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Move-in Date</label>
+              <input
+                type="date"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                value={formData.availableFrom}
+                onChange={(e) => setFormData({...formData, availableFrom: e.target.value})}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Lease Term</label>
+              <input
+                type="text"
+                placeholder="e.g. 6+ months"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                value={formData.leaseTerm}
+                onChange={(e) => setFormData({...formData, leaseTerm: e.target.value})}
+              />
+            </div>
+
             <div className="md:col-span-2">
               <button
                 type="button"
@@ -357,6 +401,85 @@ const PostRoom = ({ onPosted }) => {
               value={formData.amenities}
               onChange={(e) => setFormData({...formData, amenities: e.target.value})}
             />
+          </div>
+
+          <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5">
+            <h3 className="mb-4 text-lg font-black text-slate-900">Availability & House Rules</h3>
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Room Status</label>
+                <select
+                  value={formData.allocationStatus}
+                  onChange={(e) => setFormData({...formData, allocationStatus: e.target.value})}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="available">Available now</option>
+                  <option value="booked">Booked / reserved</option>
+                  <option value="rented">Already rented</option>
+                </select>
+              </div>
+
+              {formData.allocationStatus !== 'available' && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Taken For</label>
+                    <input
+                      type="number"
+                      min="1"
+                      placeholder="6"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                      value={formData.allocationDurationValue}
+                      onChange={(e) => setFormData({...formData, allocationDurationValue: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Unit</label>
+                    <select
+                      value={formData.allocationDurationUnit}
+                      onChange={(e) => setFormData({...formData, allocationDurationUnit: e.target.value})}
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="months">Months</option>
+                      <option value="years">Years</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              <label className="flex items-center gap-3 rounded-xl border border-emerald-100 bg-white p-4 font-bold text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={formData.ruleSmoking}
+                  onChange={(e) => setFormData({...formData, ruleSmoking: e.target.checked})}
+                  className="h-5 w-5 accent-emerald-600"
+                />
+                Smoking allowed
+              </label>
+
+              <label className="flex items-center gap-3 rounded-xl border border-emerald-100 bg-white p-4 font-bold text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={formData.rulePets}
+                  onChange={(e) => setFormData({...formData, rulePets: e.target.checked})}
+                  className="h-5 w-5 accent-emerald-600"
+                />
+                Pets allowed
+              </label>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-bold text-gray-700 mb-1">Dietary Rule</label>
+                <select
+                  value={formData.ruleDietary}
+                  onChange={(e) => setFormData({...formData, ruleDietary: e.target.value})}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="any">Any diet</option>
+                  <option value="veg">Vegetarian kitchen</option>
+                  <option value="non-veg">Non-veg allowed</option>
+                  <option value="vegan">Vegan preferred</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div className="rounded-2xl border border-cyan-100 bg-cyan-50/50 p-5">

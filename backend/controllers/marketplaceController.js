@@ -23,6 +23,10 @@ const buildGeoPoint = ({ latitude, longitude, locationCoords }) => {
     return { type: 'Point', coordinates: [lng, lat] };
 };
 
+const normalizeAllocationStatus = (status) => (
+    ['allocated', 'booked', 'rented'].includes(status) ? status : 'available'
+);
+
 const haversineKm = ([lngA, latA], [lngB, latB]) => {
     const toRadians = (degree) => degree * (Math.PI / 180);
     const earthRadiusKm = 6371;
@@ -47,12 +51,15 @@ const normalizeRoomPayload = (body) => {
     const images = Array.isArray(body.images) ? body.images.filter(Boolean) : undefined;
     const renterPreferences = body.renterPreferences || {};
     const allocation = body.allocation || {};
+    const allocationStatus = normalizeAllocationStatus(allocation.status);
 
     return {
         title,
         rent,
         location,
         description: body.description || '',
+        availableFrom: body.availableFrom || '',
+        leaseTerm: body.leaseTerm || '',
         amenities: amenities.map((amenity) => String(amenity).trim()).filter(Boolean),
         rules: {
             smoking: Boolean(body.rules?.smoking),
@@ -67,10 +74,10 @@ const normalizeRoomPayload = (body) => {
             notes: renterPreferences.notes || ''
         },
         allocation: {
-            status: allocation.status === 'allocated' ? 'allocated' : 'available',
+            status: allocationStatus,
             durationValue: toNumber(allocation.durationValue) || 0,
             durationUnit: allocation.durationUnit === 'years' ? 'years' : 'months',
-            allocatedAt: allocation.status === 'allocated' ? (allocation.allocatedAt || new Date()) : undefined
+            allocatedAt: allocationStatus !== 'available' ? (allocation.allocatedAt || new Date()) : undefined
         },
         ...(images ? { images } : {}),
         ...(locationCoords ? { locationCoords } : {})
