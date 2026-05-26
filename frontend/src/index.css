@@ -36,22 +36,57 @@
 
   .clx-card {
     @apply rounded-2xl border border-white/70 bg-white/90 shadow-xl shadow-blue-900/10 backdrop-blur;
+    animation: clx-fade-rise 420ms ease-out both;
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
   }
 
   .clx-panel {
     @apply rounded-3xl border border-white/70 bg-white/85 shadow-lg shadow-blue-900/10 backdrop-blur;
+    animation: clx-fade-rise 420ms ease-out both;
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
+  }
+
+  .clx-card:hover,
+  .clx-panel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 42px rgba(30, 64, 175, 0.12);
   }
 
   .clx-button-primary {
     @apply rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500 px-6 py-3 font-bold text-white shadow-lg shadow-cyan-500/25 transition hover:shadow-xl hover:shadow-cyan-500/30;
+    transition: transform 160ms ease, box-shadow 180ms ease, filter 180ms ease;
   }
 
   .clx-button-dark {
     @apply rounded-xl bg-slate-950 px-6 py-3 font-bold text-white shadow-lg shadow-slate-900/20 transition hover:bg-slate-800;
+    transition: transform 160ms ease, box-shadow 180ms ease, background-color 180ms ease;
+  }
+
+  .clx-button-primary:hover,
+  .clx-button-dark:hover {
+    transform: translateY(-1px);
+  }
+
+  .clx-button-primary:active,
+  .clx-button-dark:active {
+    transform: translateY(0);
   }
 
   .clx-input {
     @apply w-full rounded-xl border border-blue-100 bg-white/90 px-4 py-3 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100;
+    transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background-color 180ms ease;
+  }
+
+  .clx-input:focus {
+    transform: translateY(-1px);
+  }
+
+  .animate-fade-in {
+    animation: clx-fade-in 360ms ease-out both;
+  }
+
+  .animate-fade-in-up {
+    animation: clx-fade-rise 460ms ease-out both;
   }
 
   .clx-card input:not([type="range"]):not([type="checkbox"]),
@@ -91,6 +126,40 @@
   .clx-dashboard-bg textarea {
     border-color: rgba(191, 219, 254, 0.9) !important;
     background-color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  @keyframes clx-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes clx-fade-rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .clx-card,
+    .clx-panel,
+    .clx-button-primary,
+    .clx-button-dark,
+    .clx-input,
+    .animate-fade-in,
+    .animate-fade-in-up {
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
+    }
   }
 
   @media (max-width: 640px) {
