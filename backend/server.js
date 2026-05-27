@@ -22,7 +22,13 @@ const allowedOrigins = [
 
 const isAllowedOrigin = (origin) => {
   if (!origin || allowedOrigins.includes(origin)) return true;
-  return false;
+
+  try {
+    const { hostname, protocol } = new URL(origin);
+    return protocol === 'https:' && hostname.endsWith('.vercel.app');
+  } catch {
+    return false;
+  }
 };
 
 const corsOptions = {
