@@ -58,7 +58,7 @@ const io = new Server(server, {
 const marketplaceController = require('./controllers/marketplaceController');
 const messageService = require('./services/messageService');
 const { authenticateFirebase } = require('./middleware/authMiddleware');
-const { getFirebaseAuth } = require('./config/firebaseAdmin');
+const { getFirebaseAuth, getFirebaseAdminStatus } = require('./config/firebaseAdmin');
 
 // --- MIDDLEWARE ---
 app.use(cors(corsOptions)); // Allows your React frontend to talk to this backend
@@ -90,6 +90,13 @@ app.get('/api/health', (req, res) => {
         service: 'CoLivX API',
         status: isDatabaseConnected ? 'ok' : 'database_unavailable',
         database
+    });
+});
+
+app.get('/api/auth/debug', (req, res) => {
+    res.status(200).json({
+        success: true,
+        firebaseAdmin: getFirebaseAdminStatus()
     });
 });
 

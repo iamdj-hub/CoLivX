@@ -50,4 +50,25 @@ const getFirebaseAuth = () => {
     return admin.auth();
 };
 
-module.exports = { getFirebaseAuth };
+const getFirebaseAdminStatus = () => {
+    let serviceAccountProjectId = null;
+    let serviceAccountParseError = null;
+
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+        try {
+            serviceAccountProjectId = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON).project_id || null;
+        } catch (error) {
+            serviceAccountParseError = 'FIREBASE_SERVICE_ACCOUNT_JSON is not valid JSON.';
+        }
+    }
+
+    return {
+        hasServiceAccountJson: Boolean(process.env.FIREBASE_SERVICE_ACCOUNT_JSON),
+        hasProjectId: Boolean(process.env.FIREBASE_PROJECT_ID),
+        projectId: serviceAccountProjectId || process.env.FIREBASE_PROJECT_ID || null,
+        serviceAccountProjectId,
+        serviceAccountParseError
+    };
+};
+
+module.exports = { getFirebaseAuth, getFirebaseAdminStatus };
