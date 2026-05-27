@@ -1,7 +1,13 @@
 import axios from 'axios';
 import { auth } from './firebase';
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const normalizeBaseUrl = (value) => (
+  String(value || 'http://localhost:5000')
+    .trim()
+    .replace(/[/?#]+$/, '')
+);
+
+export const API_BASE_URL = normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL);
 
 export const getAuthToken = async () => {
   const user = auth.currentUser;

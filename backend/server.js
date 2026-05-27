@@ -31,7 +31,7 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    return callback(new Error(`CORS blocked origin: ${origin}`));
+    return callback(null, false);
   },
   credentials: true
 };
@@ -43,7 +43,7 @@ const io = new Server(server, {
         return callback(null, true);
       }
 
-      return callback(new Error(`Socket CORS blocked origin: ${origin}`));
+      return callback(null, false);
     },
     methods: ['GET', 'POST'],
     credentials: true
