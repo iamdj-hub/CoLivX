@@ -21,7 +21,12 @@ const Login = () => {
 
   const routeAfterBackendCheck = useCallback(async (user) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/users/profile/${user.uid}`);
+      const token = await user.getIdToken();
+      const response = await axios.get(`${API_BASE_URL}/api/users/profile/${user.uid}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       
       if (response.data && response.data.success) {
         if (hasCompletedPreferences(response.data.profileData)) {
@@ -36,7 +41,12 @@ const Login = () => {
       } else {
         console.error("Database connection error:", dbError);
         await auth.signOut();
-        setError(`Could not connect to the deployed backend. Check Vercel VITE_API_BASE_URL and Render CORS settings. Current API: ${API_BASE_URL}`);
+        const backendMessage = dbError.response?.data?.message;
+        const status = dbError.response?.status;
+        const networkMessage = dbError.request && !dbError.response
+          ? 'The browser could not read the backend response. Add this Vercel origin to Render FRONTEND_URLS and redeploy Render.'
+          : 'The backend responded, but login could not continue.';
+        setError(`${networkMessage}${status ? ` Status: ${status}.` : ''}${backendMessage ? ` Backend: ${backendMessage}.` : ''} Current API: ${API_BASE_URL}`);
       }
     }
   }, [navigate]);
