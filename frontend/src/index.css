@@ -1,10 +1,6 @@
 @import "tailwindcss";
 
 @layer base {
-  html {
-    scroll-behavior: smooth;
-  }
-
   body {
     margin: 0;
     min-width: 320px;
@@ -20,8 +16,6 @@
 
 @layer components {
   .clx-app-bg {
-    position: relative;
-    isolation: isolate;
     background:
       radial-gradient(circle at 8% 12%, rgba(14, 165, 233, 0.22), transparent 24rem),
       radial-gradient(circle at 86% 8%, rgba(20, 184, 166, 0.18), transparent 22rem),
@@ -30,34 +24,18 @@
   }
 
   .clx-dashboard-bg {
-    position: relative;
-    isolation: isolate;
     background:
       radial-gradient(circle at 14% 8%, rgba(14, 165, 233, 0.16), transparent 22rem),
       radial-gradient(circle at 92% 12%, rgba(16, 185, 129, 0.14), transparent 24rem),
       linear-gradient(135deg, #f6fbff 0%, #eef7ff 50%, #f7fff8 100%);
   }
 
-  .clx-app-bg::before,
-  .clx-dashboard-bg::before {
-    content: "";
-    position: fixed;
-    inset: -22%;
-    z-index: -1;
-    pointer-events: none;
-    background:
-      radial-gradient(circle at 18% 18%, rgba(37, 99, 235, 0.18), transparent 19rem),
-      radial-gradient(circle at 78% 24%, rgba(6, 182, 212, 0.16), transparent 20rem),
-      radial-gradient(circle at 48% 78%, rgba(16, 185, 129, 0.14), transparent 22rem);
-    animation: clx-ambient-drift 16s ease-in-out infinite alternate;
-  }
-
   .clx-motion-page {
-    animation: clx-page-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: clx-page-in 300ms ease-out both;
   }
 
   .clx-motion-section {
-    animation: clx-fade-rise 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: clx-fade-rise 320ms ease-out both;
   }
 
   .clx-motion-section:nth-child(2) {
@@ -66,7 +44,7 @@
 
   .clx-logo-pulse {
     background-size: 180% auto;
-    animation: clx-gradient-flow 5s ease-in-out infinite alternate;
+    animation: clx-gradient-flow 8s ease-in-out infinite alternate;
   }
 
   .clx-gradient-text {
@@ -75,14 +53,14 @@
 
   .clx-card {
     @apply rounded-2xl border border-white/70 bg-white/90 shadow-xl shadow-blue-900/10 backdrop-blur;
-    animation: clx-fade-rise 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
-    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease, background-color 220ms ease;
+    animation: clx-fade-rise 300ms ease-out both;
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background-color 160ms ease;
   }
 
   .clx-panel {
     @apply rounded-3xl border border-white/70 bg-white/85 shadow-lg shadow-blue-900/10 backdrop-blur;
-    animation: clx-fade-rise 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
-    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease, background-color 220ms ease;
+    animation: clx-fade-rise 300ms ease-out both;
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background-color 160ms ease;
   }
 
   .clx-card:hover,
@@ -94,7 +72,7 @@
   .clx-button-primary {
     @apply rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500 px-6 py-3 font-bold text-white shadow-lg shadow-cyan-500/25 transition hover:shadow-xl hover:shadow-cyan-500/30;
     background-size: 180% auto;
-    animation: clx-gradient-flow 4.8s ease-in-out infinite alternate;
+    animation: clx-gradient-flow 8s ease-in-out infinite alternate;
     transition: transform 160ms ease, box-shadow 180ms ease, filter 180ms ease;
   }
 
@@ -131,7 +109,7 @@
   }
 
   .clx-stagger > * {
-    animation: clx-fade-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: clx-fade-rise 300ms ease-out both;
   }
 
   .clx-stagger > *:nth-child(1) { animation-delay: 40ms; }
@@ -142,7 +120,7 @@
   .clx-stagger > *:nth-child(6) { animation-delay: 290ms; }
 
   .clx-tab-view {
-    animation: clx-tab-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: clx-tab-in 220ms ease-out both;
   }
 
   .clx-nav-item {
@@ -187,7 +165,6 @@
 
   .clx-dashboard-bg .bg-white {
     background-color: rgba(255, 255, 255, 0.88) !important;
-    backdrop-filter: blur(14px);
   }
 
   .clx-dashboard-bg .border-gray-100,
@@ -239,13 +216,11 @@
   @keyframes clx-page-in {
     from {
       opacity: 0;
-      transform: translateY(12px) scale(0.99);
-      filter: blur(3px);
+      transform: translateY(6px);
     }
     to {
       opacity: 1;
-      transform: translateY(0) scale(1);
-      filter: blur(0);
+      transform: translateY(0);
     }
   }
 
@@ -257,15 +232,6 @@
     to {
       opacity: 1;
       transform: translateY(0);
-    }
-  }
-
-  @keyframes clx-ambient-drift {
-    from {
-      transform: translate3d(-1.5%, -1%, 0) rotate(0deg) scale(1);
-    }
-    to {
-      transform: translate3d(1.5%, 1%, 0) rotate(6deg) scale(1.04);
     }
   }
 
@@ -306,8 +272,6 @@
     .clx-button-primary,
     .clx-button-dark,
     .clx-input,
-    .clx-app-bg::before,
-    .clx-dashboard-bg::before,
     .clx-motion-page,
     .clx-motion-section,
     .clx-logo-pulse,

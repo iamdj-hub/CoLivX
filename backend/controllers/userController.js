@@ -3,6 +3,7 @@ const Preference = require('../models/Preference');
 const Room = require('../models/Room');
 const Review = require('../models/Review');
 const { extractKeywords, keywordLabels, keywordSimilarity } = require('../services/nlpService');
+const { isSameCity, normalizeCityName } = require('../utils/cityUtils');
 
 // --- HELPER FUNCTION: Vector Math ---
 const calculateMatchVector = (prefs) => {
@@ -26,8 +27,6 @@ const getDisplayName = (user) => (
     user?.email?.split('@')[0] ||
     'CoLivX User'
 );
-
-const escapeRegExp = (value) => String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const buildProfilePayload = async (uid) => {
     const user = await User.findById(uid);
@@ -119,8 +118,8 @@ exports.saveOnboardingData = async (req, res) => {
         const updatedPreferences = await Preference.findOneAndUpdate(
             { userId: uid },
             { 
-                gender, genderPreference, occupation, city, budget, cleanliness, 
-                sleepSchedule, dietary, smoking, pets, bio, hobbies, 
+                gender, genderPreference, occupation, city: normalizeCityName(city), budget, cleanliness,
+                sleepSchedule, dietary, smoking, pets, bio, hobbies,
                 dealbreakers, locationCoords,
                 matchVector: vector,
                 nlpKeywords,
@@ -224,9 +223,9 @@ exports.updateUserFullProfile = async (req, res) => {
         const updatedPreferences = await Preference.findOneAndUpdate(
             { userId: uid },
             { 
-                gender, genderPreference, occupation, city, budget, 
-                cleanliness: Number(cleanliness), 
-                sleepSchedule: Number(sleepSchedule), 
+                gender, genderPreference, occupation, city: normalizeCityName(city), budget,
+                cleanliness: Number(cleanliness),
+                sleepSchedule: Number(sleepSchedule),
                 dietary, smoking, pets, bio, hobbies, dealbreakers,
                 matchVector: vector,
                 nlpKeywords,
@@ -296,9 +295,8 @@ exports.getMatches = async (req, res) => {
         rankedMatches.sort((a, b) => b.matchPercentage - a.matchPercentage);
 
         const currentCity = String(currentUser.city || '').trim();
-        const currentCityRegex = new RegExp(`^${escapeRegExp(currentCity)}$`, 'i');
-        const sameCityMatches = rankedMatches.filter(match => currentCity && currentCityRegex.test(match.city || ''));
-        const globalMatches = rankedMatches.filter(match => !currentCity || !currentCityRegex.test(match.city || ''));
+        const sameCityMatches = rankedMatches.filter(match => isSameCity(currentCity, match.city));
+        const globalMatches = rankedMatches.filter(match => !isSameCity(currentCity, match.city));
 
         res.status(200).json({
             success: true,
