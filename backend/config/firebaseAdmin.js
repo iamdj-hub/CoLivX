@@ -2,7 +2,13 @@ const admin = require('firebase-admin');
 
 const parseServiceAccount = () => {
     if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
-        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+        let serviceAccount;
+        try {
+            serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+        } catch (error) {
+            throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON is not valid JSON.');
+        }
+
         if (serviceAccount.private_key) {
             serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
         }
@@ -29,12 +35,16 @@ const getFirebaseAuth = () => {
         const serviceAccount = parseServiceAccount();
         const projectId = serviceAccount?.project_id || process.env.FIREBASE_PROJECT_ID;
 
-        admin.initializeApp({
-            credential: serviceAccount
-                ? admin.credential.cert(serviceAccount)
-                : admin.credential.applicationDefault(),
-            ...(projectId ? { projectId } : {})
-        });
+        if (serviceAccount) {
+            admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount),
+                ...(projectId ? { projectId } : {})
+            });
+        } else if (projectId) {
+            admin.initializeApp({ projectId });
+        } else {
+            throw new Error('Firebase Admin is not configured. Set FIREBASE_SERVICE_ACCOUNT_JSON or FIREBASE_PROJECT_ID.');
+        }
     }
 
     return admin.auth();

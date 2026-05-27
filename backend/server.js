@@ -118,6 +118,11 @@ io.use(async (socket, next) => {
 
         return next();
     } catch (error) {
+        console.error('Socket auth verification failed:', {
+            code: error.code,
+            message: error.message
+        });
+
         return next(new Error('Authentication token is invalid or expired.'));
     }
 });

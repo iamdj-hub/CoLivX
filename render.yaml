@@ -16,6 +16,8 @@ services:
         sync: false
       - key: FIREBASE_SERVICE_ACCOUNT_JSON
         sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
       - key: ADMIN_UIDS
         sync: false
       - key: CLOUDINARY_CLOUD_NAME

@@ -36,6 +36,7 @@ CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 FIREBASE_SERVICE_ACCOUNT_JSON={"type":"service_account",...}
+FIREBASE_PROJECT_ID=your_firebase_project_id
 ADMIN_UIDS=comma_separated_firebase_uids_for_admin_routes
 ```
 
@@ -44,6 +45,8 @@ Create `FIREBASE_SERVICE_ACCOUNT_JSON` in Firebase Console:
 Project settings > Service accounts > Generate new private key.
 
 Paste the JSON as a single environment variable value. Keep newline escapes as `\n` if your host requires a single-line value.
+
+For token verification only, `FIREBASE_PROJECT_ID` can also be used. It must exactly match the frontend `VITE_FIREBASE_PROJECT_ID`.
 
 After deploy, copy the Render URL, for example:
 

@@ -29,6 +29,11 @@ const createFirebaseAuthMiddleware = ({ verifyIdToken } = {}) => {
 
             return next();
         } catch (error) {
+            console.error('Firebase auth verification failed:', {
+                code: error.code,
+                message: error.message
+            });
+
             return res.status(401).json({
                 success: false,
                 message: 'Authentication token is invalid or expired.'
