@@ -82,10 +82,10 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="clx-app-bg flex min-h-dvh">
+    <div className="clx-app-bg clx-motion-page flex min-h-dvh">
       
       {/* LEFT SIDE: Dynamic Visual Engine */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-950 via-blue-800 to-teal-600 text-white flex-col justify-between p-16 relative overflow-hidden">
+      <div className="clx-motion-section hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-950 via-blue-800 to-teal-600 text-white flex-col justify-between p-16 relative overflow-hidden">
         {/* Abstract background shapes */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
             <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-white blur-3xl"></div>
@@ -93,7 +93,7 @@ const Onboarding = () => {
         </div>
 
         <div className="relative z-10">
-          <h1 className="text-4xl font-extrabold tracking-tight mb-2">CoLivX</h1>
+          <h1 className="clx-logo-pulse bg-gradient-to-r from-white via-cyan-100 to-emerald-100 bg-clip-text text-4xl font-extrabold tracking-tight mb-2 text-transparent">CoLivX</h1>
           <p className="text-lg text-cyan-100 font-medium">The data-driven matching engine.</p>
         </div>
         
@@ -125,7 +125,7 @@ const Onboarding = () => {
       </div>
 
       {/* RIGHT SIDE: The Form Engine */}
-      <div className="flex w-full flex-col justify-center overflow-y-auto px-4 py-8 sm:px-10 lg:w-1/2 lg:px-16 lg:py-12">
+      <div className="clx-motion-section flex w-full flex-col justify-center overflow-y-auto px-4 py-8 sm:px-10 lg:w-1/2 lg:px-16 lg:py-12">
         <div className="clx-card mx-auto w-full max-w-md p-5 sm:p-8">
           
           {/* Progress Bar */}
@@ -147,7 +147,7 @@ const Onboarding = () => {
             
             {/* STEP 1: THE BASICS */}
             {step === 1 && (
-              <div className="space-y-5 animate-fade-in">
+              <div className="clx-stagger space-y-5 animate-fade-in">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Target City</label>
                   <input type="text" name="city" required value={formData.city} onChange={handleChange} className="w-full rounded-xl border-gray-300 border p-3.5 focus:ring-2 focus:ring-blue-500 outline-none transition bg-white shadow-sm" placeholder="e.g., Bangalore, London, New York" />
@@ -182,7 +182,7 @@ const Onboarding = () => {
 
             {/* STEP 2: THE VIBE */}
             {step === 2 && (
-              <div className="space-y-6 animate-fade-in">
+              <div className="clx-stagger space-y-6 animate-fade-in">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Cleanliness: <span className="text-blue-600">{formData.cleanliness}/10</span></label>
                   <input type="range" name="cleanliness" min="1" max="10" value={formData.cleanliness} onChange={handleChange} className="w-full accent-blue-600 cursor-pointer" />
@@ -220,7 +220,7 @@ const Onboarding = () => {
 
             {/* STEP 3: THE BOUNDARIES */}
             {step === 3 && (
-              <div className="space-y-5 animate-fade-in">
+              <div className="clx-stagger space-y-5 animate-fade-in">
                 <div className="grid grid-cols-1 gap-4 bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                   <label className="flex items-center space-x-3 cursor-pointer">
                     <input type="checkbox" name="smoking" checked={formData.smoking} onChange={handleChange} className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
@@ -264,11 +264,11 @@ const Onboarding = () => {
               )}
 
               {step < 3 ? (
-                <button type="button" onClick={nextStep} className="rounded-xl bg-blue-600 px-8 py-3.5 font-bold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 sm:ml-auto">
+                <button type="button" onClick={nextStep} className="clx-button-primary px-8 py-3.5 sm:ml-auto">
                   Continue
                 </button>
               ) : (
-                <button type="submit" disabled={loading} className="px-8 py-3.5 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition shadow-lg shadow-green-200 disabled:bg-green-400 flex items-center justify-center">
+                <button type="submit" disabled={loading} className="clx-button-primary flex items-center justify-center px-8 py-3.5 disabled:opacity-70">
                   {loading ? 'Crunching Data...' : 'Find My Match'}
                 </button>
               )}

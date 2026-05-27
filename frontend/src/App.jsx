@@ -9,10 +9,10 @@ import ProfileSetup from './ProfileSetup';
 import Dashboard from './Dashboard';
 
 const Home = () => (
-  <div className="clx-app-bg min-h-dvh px-4 py-5 sm:px-6 lg:px-8">
-    <header className="mx-auto flex max-w-6xl items-center justify-between rounded-2xl border border-white/70 bg-white/75 px-4 py-3 shadow-lg shadow-blue-900/5 backdrop-blur">
+  <div className="clx-app-bg clx-motion-page min-h-dvh px-4 py-5 sm:px-6 lg:px-8">
+    <header className="clx-motion-section mx-auto flex max-w-6xl items-center justify-between rounded-2xl border border-white/70 bg-white/75 px-4 py-3 shadow-lg shadow-blue-900/5 backdrop-blur">
       <div>
-        <div className="clx-gradient-text text-2xl font-black tracking-tight">CoLivX.</div>
+        <div className="clx-gradient-text clx-logo-pulse text-2xl font-black tracking-tight">CoLivX.</div>
         <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">Smart Co-Living</div>
       </div>
       <Link to="/login" className="rounded-full bg-slate-950 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-slate-900/15">
@@ -21,7 +21,7 @@ const Home = () => (
     </header>
 
     <main className="mx-auto grid min-h-[calc(100dvh-5.5rem)] max-w-6xl items-center gap-8 py-10 lg:grid-cols-[1.05fr_0.95fr] lg:py-14">
-      <section className="text-center lg:text-left">
+      <section className="clx-motion-section text-center lg:text-left">
         <div className="mx-auto mb-5 inline-flex rounded-full border border-cyan-100 bg-white/80 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-700 shadow-sm lg:mx-0">
           Live matching, rooms, reviews and chat
         </div>
@@ -47,7 +47,7 @@ const Home = () => (
         </p>
       </section>
 
-      <section className="clx-card overflow-hidden">
+      <section className="clx-card clx-motion-section overflow-hidden">
         <div className="bg-gradient-to-br from-blue-600 via-cyan-500 to-emerald-500 p-5 text-white sm:p-7">
           <div className="flex items-center justify-between gap-4">
             <div>
@@ -60,7 +60,7 @@ const Home = () => (
             </div>
           </div>
         </div>
-        <div id="features" className="grid gap-3 p-5 sm:grid-cols-2 sm:p-6">
+        <div id="features" className="clx-stagger grid gap-3 p-5 sm:grid-cols-2 sm:p-6">
           {[
             ['Radius Map', 'Search rooms around your ideal area.'],
             ['Live Chat', 'Message matches without leaving the app.'],
@@ -79,8 +79,9 @@ const Home = () => (
 );
 
 const AuthLoading = () => (
-  <div className="clx-app-bg flex min-h-screen items-center justify-center">
+  <div className="clx-app-bg clx-motion-page flex min-h-screen items-center justify-center">
     <div className="clx-card px-8 py-6 text-center font-bold text-slate-600">
+      <span className="mr-2 inline-block h-2 w-2 rounded-full bg-cyan-500 clx-logout-dot" />
       Checking your session...
     </div>
   </div>

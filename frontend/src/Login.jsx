@@ -97,8 +97,9 @@ const Login = () => {
 
   if (checkingSession) {
     return (
-      <div className="clx-app-bg flex min-h-dvh items-center justify-center px-4">
+      <div className="clx-app-bg clx-motion-page flex min-h-dvh items-center justify-center px-4">
         <div className="clx-card px-8 py-6 text-center font-bold text-slate-600">
+          <span className="mr-2 inline-block h-2 w-2 rounded-full bg-cyan-500 clx-logout-dot" />
           Checking your saved profile...
         </div>
       </div>
@@ -106,13 +107,13 @@ const Login = () => {
   }
 
   return (
-    <div className="clx-app-bg flex min-h-dvh items-center justify-center px-4 py-8 sm:px-6">
+    <div className="clx-app-bg clx-motion-page flex min-h-dvh items-center justify-center px-4 py-8 sm:px-6">
       <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-white/70 bg-white/90 shadow-2xl shadow-blue-900/10 backdrop-blur lg:grid-cols-[0.95fr_1.05fr]">
-        <section className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-blue-700 to-emerald-500 p-7 text-white sm:p-10">
+        <section className="clx-motion-section relative overflow-hidden bg-gradient-to-br from-slate-950 via-blue-700 to-emerald-500 p-7 text-white sm:p-10">
           <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-white/15 blur-3xl" />
           <div className="absolute -bottom-24 left-10 h-60 w-60 rounded-full bg-cyan-300/20 blur-3xl" />
           <div className="relative">
-            <div className="text-3xl font-black tracking-tight">CoLivX.</div>
+            <div className="clx-logo-pulse bg-gradient-to-r from-white via-cyan-100 to-emerald-100 bg-clip-text text-3xl font-black tracking-tight text-transparent">CoLivX.</div>
             <p className="mt-2 max-w-sm text-sm font-semibold text-cyan-50">
               Match with roommates, explore rooms nearby, review profiles and chat live from one place.
             </p>
@@ -131,7 +132,7 @@ const Login = () => {
           </div>
         </section>
 
-        <section className="p-6 sm:p-8 lg:p-10">
+        <section className="clx-motion-section p-6 sm:p-8 lg:p-10">
           <h2 className="clx-gradient-text text-3xl font-black text-center mb-2">
             {isSignUp ? 'Create Account' : 'Welcome Back'}
           </h2>
@@ -141,7 +142,7 @@ const Login = () => {
 
           {error && <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-center text-sm font-bold text-red-600">{error}</p>}
 
-          <form onSubmit={handleAuth} className="space-y-4">
+          <form onSubmit={handleAuth} className="clx-stagger space-y-4">
             <div>
               <label className="block text-gray-700 font-bold mb-1">Email</label>
               <input 

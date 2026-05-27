@@ -33,6 +33,7 @@ const Dashboard = () => {
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [profileError, setProfileError] = useState('');
+  const [loggingOut, setLoggingOut] = useState(false);
 
   // Public Profile & Shortlist States
   const [selectedUser, setSelectedUser] = useState(null);
@@ -178,6 +179,8 @@ const handleViewPosterProfile = (posterObj) => {
   };
 
   const handleLogout = async () => {
+    setLoggingOut(true);
+    await new Promise((resolve) => window.setTimeout(resolve, 360));
     await auth.signOut();
     navigate('/login', { replace: true });
   };
@@ -247,64 +250,83 @@ const handleViewPosterProfile = (posterObj) => {
 
     switch (activeTab) {
       case 'matches': 
-        return <Matches uid={currentUid} onViewProfile={handleViewProfile} />;
+        return <div key="matches" className="clx-tab-view"><Matches uid={currentUid} onViewProfile={handleViewProfile} /></div>;
       case 'rooms': 
         return (
-          <Rooms
-            onViewRoom={handleViewRoom}
-            onMessageClick={handleMessageClick}
-            likedRoomIds={likedRoomIds}
-            shortlistedRoomIds={shortlistedRoomIds}
-            onToggleLike={handleToggleRoomLike}
-            onToggleShortlist={handleToggleRoomShortlist}
-          />
+          <div key="rooms" className="clx-tab-view">
+            <Rooms
+              onViewRoom={handleViewRoom}
+              onMessageClick={handleMessageClick}
+              likedRoomIds={likedRoomIds}
+              shortlistedRoomIds={shortlistedRoomIds}
+              onToggleLike={handleToggleRoomLike}
+              onToggleShortlist={handleToggleRoomShortlist}
+            />
+          </div>
         );
-   case 'roomDetails':                             // <--- Add this case
-     return (
-       <RoomDetails 
-         room={selectedRoom} 
-         onBack={() => setActiveTab(roomDetailsBackTab || 'rooms')} 
-         onMessageClick={handleMessageClick}
-         onViewPosterProfile={handleViewPosterProfile}
-         isLiked={likedRoomIds.includes(getRoomId(selectedRoom))}
-         isShortlisted={shortlistedRoomIds.includes(getRoomId(selectedRoom))}
-         onToggleLike={() => handleToggleRoomLike(selectedRoom)}
-         onToggleShortlist={() => handleToggleRoomShortlist(selectedRoom)}
-         currentUid={currentUid}
-         onRoomUpdated={handleRoomUpdated}
-       />
-     );
+      case 'roomDetails':
+        return (
+          <div key="roomDetails" className="clx-tab-view">
+            <RoomDetails
+              room={selectedRoom}
+              onBack={() => setActiveTab(roomDetailsBackTab || 'rooms')}
+              onMessageClick={handleMessageClick}
+              onViewPosterProfile={handleViewPosterProfile}
+              isLiked={likedRoomIds.includes(getRoomId(selectedRoom))}
+              isShortlisted={shortlistedRoomIds.includes(getRoomId(selectedRoom))}
+              onToggleLike={() => handleToggleRoomLike(selectedRoom)}
+              onToggleShortlist={() => handleToggleRoomShortlist(selectedRoom)}
+              currentUid={currentUid}
+              onRoomUpdated={handleRoomUpdated}
+            />
+          </div>
+        );
       case 'post': 
-        return <PostRoom onPosted={handleRoomPosted} />;
+        return <div key="post" className="clx-tab-view"><PostRoom onPosted={handleRoomPosted} /></div>;
       case 'messages': 
-        return <Messages currentUid={currentUid} initialRecipient={messagingRecipient} />;
+        return <div key="messages" className="clx-tab-view"><Messages currentUid={currentUid} initialRecipient={messagingRecipient} /></div>;
       case 'publicProfile': 
-        return  (<PublicProfile 
-            user={selectedUser} 
-            isShortlisted={shortlistedUsers.includes(selectedUser?.userId?._id || selectedUser?.id)}
-            onToggleShortlist={() => handleToggleShortlist(selectedUser?.userId?._id || selectedUser?.id)}
-            onMessageClick={handleMessageClick}
-            onViewRoom={(room) => handleViewRoom(room, 'publicProfile')}
-          />
+        return  (
+          <div key="publicProfile" className="clx-tab-view">
+            <PublicProfile
+              user={selectedUser}
+              isShortlisted={shortlistedUsers.includes(selectedUser?.userId?._id || selectedUser?.id)}
+              onToggleShortlist={() => handleToggleShortlist(selectedUser?.userId?._id || selectedUser?.id)}
+              onMessageClick={handleMessageClick}
+              onViewRoom={(room) => handleViewRoom(room, 'publicProfile')}
+            />
+          </div>
         );
       case 'profile': 
-        return <Profile 
-                 profileData={profileData} 
-                 setProfileData={setProfileData}
-                 isEditingProfile={isEditingProfile} 
-                 setIsEditingProfile={handleSetIsEditingProfile} 
-                 editFormData={editFormData} 
-                 setEditFormData={setEditFormData} 
-                 handleUpdateProfile={handleUpdateProfile} 
-                 onViewRoom={(room) => handleViewRoom(room, 'profile')}
-               />;
+        return (
+          <div key="profile" className="clx-tab-view">
+            <Profile
+              profileData={profileData}
+              setProfileData={setProfileData}
+              isEditingProfile={isEditingProfile}
+              setIsEditingProfile={handleSetIsEditingProfile}
+              editFormData={editFormData}
+              setEditFormData={setEditFormData}
+              handleUpdateProfile={handleUpdateProfile}
+              onViewRoom={(room) => handleViewRoom(room, 'profile')}
+            />
+          </div>
+        );
       default: 
-        return <Matches uid={currentUid} onViewProfile={handleViewProfile} />;
+        return <div key="default" className="clx-tab-view"><Matches uid={currentUid} onViewProfile={handleViewProfile} /></div>;
     }
   };
 
   return (
-    <div className="clx-dashboard-bg flex min-h-dvh flex-col font-sans md:h-screen md:flex-row md:overflow-hidden">
+    <div className="clx-dashboard-bg clx-motion-page flex min-h-dvh flex-col font-sans md:h-screen md:flex-row md:overflow-hidden">
+      {loggingOut && (
+        <div className="clx-logout-overlay fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4">
+          <div className="clx-card flex items-center gap-3 px-7 py-5 text-sm font-black text-slate-700">
+            <span className="clx-logout-dot h-3 w-3 rounded-full bg-cyan-500 shadow-lg shadow-cyan-400/50" />
+            Signing you out...
+          </div>
+        </div>
+      )}
       
       {/* MODULAR SIDEBAR */}
       <Sidebar 
