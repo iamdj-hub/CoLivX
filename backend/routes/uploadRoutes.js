@@ -3,9 +3,10 @@ const router = express.Router();
 const multer = require('multer');
 const upload = require('../middleware/uploadMiddleware');
 const uploadController = require('../controllers/uploadController');
+const { authenticateFirebase, requireSelfParam } = require('../middleware/authMiddleware');
 
-router.post('/profile/:uid', upload.single('image'), uploadController.uploadProfilePhoto);
-router.post('/rooms', upload.array('images', 6), uploadController.uploadRoomPhotos);
+router.post('/profile/:uid', authenticateFirebase, requireSelfParam('uid'), upload.single('image'), uploadController.uploadProfilePhoto);
+router.post('/rooms', authenticateFirebase, upload.array('images', 6), uploadController.uploadRoomPhotos);
 
 router.use((error, req, res, next) => {
     if (error instanceof multer.MulterError) {

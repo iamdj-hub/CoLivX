@@ -22,13 +22,7 @@ const allowedOrigins = [
 
 const isAllowedOrigin = (origin) => {
   if (!origin || allowedOrigins.includes(origin)) return true;
-
-  try {
-    const { hostname, protocol } = new URL(origin);
-    return protocol === 'https:' && hostname.endsWith('.vercel.app');
-  } catch {
-    return false;
-  }
+  return false;
 };
 
 const corsOptions = {
@@ -57,16 +51,18 @@ const io = new Server(server, {
 });
 const marketplaceController = require('./controllers/marketplaceController');
 const messageService = require('./services/messageService');
+const { authenticateFirebase } = require('./middleware/authMiddleware');
+const { getFirebaseAuth } = require('./config/firebaseAdmin');
 
 // --- MIDDLEWARE ---
 app.use(cors(corsOptions)); // Allows your React frontend to talk to this backend
 app.use(express.json()); // Allows the server to read incoming JSON data
 
 // Marketplace Routes
-app.post('/api/rooms', marketplaceController.postRoom);
+app.post('/api/rooms', authenticateFirebase, marketplaceController.postRoom);
 app.get('/api/rooms', marketplaceController.getAllRooms);
-app.put('/api/rooms/:roomId', marketplaceController.updateRoom);
-app.post('/api/reviews', marketplaceController.submitReview);
+app.put('/api/rooms/:roomId', authenticateFirebase, marketplaceController.updateRoom);
+app.post('/api/reviews', authenticateFirebase, marketplaceController.submitReview);
 
 // ---- ROUTES -----
 app.use('/api/users', require('./routes/userRoutes'));
@@ -97,16 +93,44 @@ mongoose.connect(process.env.MONGO_URI)
   .catch((error) => console.log('❌ MongoDB connection error:', error));
 
 // --- REAL-TIME MESSAGING ---
+io.use(async (socket, next) => {
+    try {
+        const token = socket.handshake.auth?.token;
+        if (!token) {
+            return next(new Error('Authentication token is required.'));
+        }
+
+        const decodedToken = await getFirebaseAuth().verifyIdToken(token);
+        if (!decodedToken?.uid) {
+            return next(new Error('Invalid authentication token.'));
+        }
+
+        socket.user = {
+            uid: decodedToken.uid,
+            email: decodedToken.email
+        };
+
+        return next();
+    } catch (error) {
+        return next(new Error('Authentication token is invalid or expired.'));
+    }
+});
+
 io.on('connection', (socket) => {
+    socket.join(`user:${socket.user.uid}`);
+
     socket.on('join', (uid) => {
-        if (uid) {
+        if (uid && uid === socket.user.uid) {
             socket.join(`user:${uid}`);
         }
     });
 
     socket.on('send_message', async (payload, ack) => {
         try {
-            const result = await messageService.sendMessage(payload);
+            const result = await messageService.sendMessage({
+                ...payload,
+                senderId: socket.user.uid
+            });
             const responseForSender = {
                 message: result.message,
                 conversation: result.senderConversation
@@ -116,7 +140,7 @@ io.on('connection', (socket) => {
                 conversation: result.receiverConversation
             };
 
-            io.to(`user:${payload.senderId}`).emit('message_received', responseForSender);
+            io.to(`user:${socket.user.uid}`).emit('message_received', responseForSender);
             io.to(`user:${payload.receiverId}`).emit('message_received', responseForReceiver);
 
             if (typeof ack === 'function') {

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { io } from 'socket.io-client';
-import { API_BASE_URL } from '../../api';
+import { API_BASE_URL, getAuthToken } from '../../api';
 
 const getRecipientId = (recipient) => recipient?._id || recipient?.id;
 
@@ -45,37 +45,53 @@ const Messages = ({ currentUid, initialRecipient }) => {
       return undefined;
     }
 
-    const socket = io(API_BASE_URL, {
-      transports: ['websocket', 'polling']
-    });
+    let socket;
+    let isMounted = true;
 
-    socketRef.current = socket;
+    const connectSocket = async () => {
+      const token = await getAuthToken();
+      if (!isMounted || !token) return;
 
-    socket.on('connect', () => {
-      setSocketConnected(true);
-      socket.emit('join', currentUid);
-    });
-
-    socket.on('disconnect', () => {
-      setSocketConnected(false);
-    });
-
-    socket.on('message_received', ({ message, conversation }) => {
-      setConversations((previous) => {
-        const withoutCurrent = previous.filter((item) => item._id !== conversation._id);
-        return sortConversations([conversation, ...withoutCurrent]);
+      socket = io(API_BASE_URL, {
+        auth: { token },
+        transports: ['websocket', 'polling']
       });
 
-      if (activeConversationIdRef.current === String(message.conversationId)) {
-        setMessages((previous) => {
-          if (previous.some((item) => item._id === message._id)) return previous;
-          return [...previous, message];
+      socketRef.current = socket;
+
+      socket.on('connect', () => {
+        setSocketConnected(true);
+      });
+
+      socket.on('disconnect', () => {
+        setSocketConnected(false);
+      });
+
+      socket.on('connect_error', (err) => {
+        setSocketConnected(false);
+        setError(err.message || 'Could not connect live chat.');
+      });
+
+      socket.on('message_received', ({ message, conversation }) => {
+        setConversations((previous) => {
+          const withoutCurrent = previous.filter((item) => item._id !== conversation._id);
+          return sortConversations([conversation, ...withoutCurrent]);
         });
-      }
-    });
+
+        if (activeConversationIdRef.current === String(message.conversationId)) {
+          setMessages((previous) => {
+            if (previous.some((item) => item._id === message._id)) return previous;
+            return [...previous, message];
+          });
+        }
+      });
+    };
+
+    connectSocket();
 
     return () => {
-      socket.disconnect();
+      isMounted = false;
+      socket?.disconnect();
       socketRef.current = null;
     };
   }, [currentUid]);

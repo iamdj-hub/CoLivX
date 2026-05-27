@@ -35,7 +35,15 @@ FRONTEND_URL=https://your-vercel-app.vercel.app
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
+FIREBASE_SERVICE_ACCOUNT_JSON={"type":"service_account",...}
+ADMIN_UIDS=comma_separated_firebase_uids_for_admin_routes
 ```
+
+Create `FIREBASE_SERVICE_ACCOUNT_JSON` in Firebase Console:
+
+Project settings > Service accounts > Generate new private key.
+
+Paste the JSON as a single environment variable value. Keep newline escapes as `\n` if your host requires a single-line value.
 
 After deploy, copy the Render URL, for example:
 
@@ -74,6 +82,8 @@ FRONTEND_URL=https://your-vercel-app.vercel.app
 ```
 
 Redeploy the Render backend after changing `FRONTEND_URL`.
+
+If you use Vercel preview or custom domains, add each exact origin to `FRONTEND_URLS` as a comma-separated list. The backend intentionally does not allow every `*.vercel.app` origin.
 
 ## 5. Firebase Auth Domain
 

@@ -86,7 +86,7 @@ const normalizeRoomPayload = (body) => {
 
 exports.postRoom = async (req, res) => {
     try {
-        const userId = req.body.userId || req.body.uid;
+        const userId = req.user?.uid || req.body.userId || req.body.uid;
         const payload = normalizeRoomPayload(req.body);
 
         if (!userId) {
@@ -120,7 +120,7 @@ exports.postRoom = async (req, res) => {
 exports.updateRoom = async (req, res) => {
     try {
         const { roomId } = req.params;
-        const uid = req.body.uid || req.body.userId;
+        const uid = req.user?.uid || req.body.uid || req.body.userId;
 
         if (!uid) {
             return res.status(400).json({ success: false, message: 'You must be logged in to edit a room.' });
@@ -229,6 +229,7 @@ exports.submitReview = async (req, res) => {
     try {
         const newReview = new Review({
             ...req.body,
+            reviewerId: req.user?.uid || req.body.reviewerId,
             comment: req.body.comment || req.body.text || '',
             text: req.body.text || req.body.comment || ''
         });

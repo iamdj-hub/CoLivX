@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { API_BASE_URL } from '../../api';
+import { authFetch } from '../../api';
 
 const getDisplayName = (user) => (
   user?.displayName ||
@@ -85,7 +85,7 @@ const Matches = ({ uid, onViewProfile }) => { // Assume uid is passed as a prop
 
       try {
         // This calls the controller function we just wrote!
-        const response = await fetch(`${API_BASE_URL}/api/users/matches/${uid}`);
+        const response = await authFetch(`/api/users/matches/${uid}`);
         const data = await response.json();
         
         if (data.success) {
